@@ -1,21 +1,29 @@
-# File Tree: liquid-motion-drawer
-
-**Generated:** 8/9/2026, 4:06:12 PM
-
 ```
 ├── 📁 public
 ├── 📁 src
 │   ├── 📁 assets
 │   ├── 📁 components
 │   │   └── 📁 LiquidMotionDrawer
+│   │       ├── 📄 DrawerOverlay.tsx
+│   │       ├── 📄 DrawerSurface.tsx
+│   │       ├── 📄 LiquidMotionDrawer.tsx
+│   │       ├── 📄 LiquidFilterDefs.tsx
+│   │       └── 📄 index.ts
 │   ├── 📁 config
+│   │   └── 📄 LiquidConstants.ts
 │   ├── 📁 core
+│   │   ├── 📄 imageRenderer.ts
+│   │   ├── 📄 liquidMath.ts
+│   │   └── 📄 surfaceEquations.ts
 │   ├── 📁 hooks
+│   │   ├── 📄 useLiquidMaps.ts
+│   │   └── 📄 useMorphSprings.ts
 │   ├── 🎨 App.css
 │   ├── 📄 App.tsx
 │   ├── 🎨 index.css
 │   └── 📄 main.tsx
 ├── ⚙️ .gitignore
+├── 📝 FileTree.md
 ├── 📝 README.md
 ├── 📄 eslint.config.js
 ├── 🌐 index.html
