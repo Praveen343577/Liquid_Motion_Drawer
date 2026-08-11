@@ -139,6 +139,28 @@ export const CONTENT_REVEAL_THRESHOLD = 0.85;
 /** Default backdrop-blur strength (px) for the dimming overlay behind the drawer. */
 export const DEFAULT_OVERLAY_BLUR = 8;
 
+export interface TweenPreset {
+  type: "tween";
+  duration: number;
+  ease: "easeOut" | "easeIn" | "easeInOut" | "linear";
+}
+
+/**
+ * DrawerOverlay's enter/exit fade. A tween rather than a spring
+ * deliberately — the overlay has no equivalent in the vanilla demo (it's
+ * a standalone-widgets demo with no modal/drawer concept at all), so
+ * there's no original timing to match. A snappy ease-out tween is the
+ * conventional choice for a scrim fading in behind a spring-driven
+ * surface; a bouncy spring on the backdrop itself tends to read as an odd
+ * flicker rather than physicality, since there's no bezel/refraction
+ * effect on a flat tint+blur layer to sell the motion.
+ */
+export const OVERLAY_TRANSITION: TweenPreset = {
+  type: "tween",
+  duration: 0.2,
+  ease: "easeOut",
+};
+
 // ---------------------------------------------------------------------------
 // Rendering mode
 // ---------------------------------------------------------------------------
