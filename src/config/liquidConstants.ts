@@ -139,6 +139,18 @@ export const CONTENT_REVEAL_THRESHOLD = 0.85;
 /** Default backdrop-blur strength (px) for the dimming overlay behind the drawer. */
 export const DEFAULT_OVERLAY_BLUR = 8;
 
+/**
+ * Default blur strength (px) for DrawerSurface's non-Chromium fallback
+ * appearance (plain frosted `blur()`, no refraction - see DrawerSurface.tsx
+ * for why). Deliberately its own constant rather than reusing
+ * LiquidOpticsConfig.blur: that value is the SVG filter's internal
+ * pre-blur pass applied to SourceGraphic before displacement (0.5px,
+ * barely visible on its own by design) and means something different from
+ * "how frosted should the fallback surface look" (needs to be much
+ * stronger to read as glass with no refraction to sell the effect).
+ */
+export const DEFAULT_FALLBACK_BLUR = 16;
+
 export interface TweenPreset {
   type: "tween";
   duration: number;
