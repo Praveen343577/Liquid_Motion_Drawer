@@ -6,11 +6,11 @@
 │   │   └── 📁 LiquidMotionDrawer
 │   │       ├── 📄 DrawerOverlay.tsx
 │   │       ├── 📄 DrawerSurface.tsx
-│   │       ├── 📄 index.ts
 │   │       ├── 📄 LiquidFilterDefs.tsx
-│   │       └── 📄 LiquidMotionDrawer.tsx
+│   │       ├── 📄 LiquidMotionDrawer.tsx
+│   │       └── 📄 index.ts
 │   ├── 📁 config
-│   │   └── 📄 LiquidConstants.ts
+│   │   └── 📄 liquidConstants.ts
 │   ├── 📁 core
 │   │   ├── 📄 imageRenderer.ts
 │   │   ├── 📄 liquidMath.ts
