@@ -317,53 +317,7 @@
   flex-shrink: 0;
 }
 
-/* ── Pill Indicator ─────────────────────────────────────────── */
-.pill-hint {
-  position: fixed;
-  bottom: 86px;
-  right: 24px;
-  z-index: 999;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 0.75rem;
-  font-weight: 500;
-  color: var(--color-text-secondary);
-  background: var(--color-bg-elevated);
-  border: 1px solid var(--color-border);
-  border-radius: 999px;
-  padding: 8px 16px;
-  pointer-events: none;
-  animation: hint-fade 4s ease-in-out forwards;
-}
-.pill-hint__arrow {
-  animation: hint-bounce 1.2s ease-in-out infinite;
-}
-@keyframes hint-bounce {
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(3px);
-  }
-}
-@keyframes hint-fade {
-  0% {
-    opacity: 0;
-    transform: translateY(6px);
-  }
-  15% {
-    opacity: 1;
-    transform: translateY(0);
-  }
-  75% {
-    opacity: 1;
-  }
-  100% {
-    opacity: 0;
-  }
-}
+
 
 /* ── Ambient Glow ───────────────────────────────────────────── */
 .ambient-glow {

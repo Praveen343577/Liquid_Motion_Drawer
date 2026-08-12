@@ -30,7 +30,7 @@ const DRAWER_FEATURES = [
 ];
 
 export default function App() {
-  const [showHint, setShowHint] = useState(true);
+  const [drawerOpen, setDrawerOpen] = useState(false);
 
   return (
     <>
@@ -71,10 +71,7 @@ export default function App() {
           </span>
           <button
             className="cta-button"
-            onClick={() => {
-              /* The pill in the bottom-right IS the trigger — just draw attention */
-              setShowHint(true);
-            }}
+            onClick={() => setDrawerOpen(true)}
           >
             Open the Drawer
             <span className="cta-button__arrow">→</span>
@@ -82,19 +79,11 @@ export default function App() {
         </div>
       </main>
 
-      {/* ── Pill hint ── */}
-      {showHint && (
-        <div
-          className="pill-hint"
-          onAnimationEnd={() => setShowHint(false)}
-        >
-          Tap the glass pill
-          <span className="pill-hint__arrow">↓</span>
-        </div>
-      )}
-
-      {/* ── The Drawer ── */}
+      {/* ── The Drawer (controlled mode) ── */}
       <LiquidMotionDrawer
+        open={drawerOpen}
+        onOpenChange={setDrawerOpen}
+        surfaceIsTrigger={false}
         width={380}
         height={480}
         radius={24}
