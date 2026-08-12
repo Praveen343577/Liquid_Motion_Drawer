@@ -46,7 +46,7 @@
  * ---------------------------------------------------------------------
  */
 
-import { forwardRef, useEffect, useId, useLayoutEffect, useState, type CSSProperties, type ReactNode } from "react";
+import { forwardRef, useEffect, useId, useLayoutEffect, useState, type CSSProperties, type KeyboardEvent, type ReactNode } from "react";
 import { motion } from "framer-motion";
 import {
   DEFAULT_FALLBACK_BLUR,
@@ -106,6 +106,25 @@ export interface DrawerSurfaceProps {
   "aria-labelledby"?: string;
   className?: string;
   style?: CSSProperties;
+  /**
+   * Optional click handler. Meaningful on this component specifically
+   * because, per blueprint D.3's CLOSED_VARIANT, the surface stays
+   * permanently mounted as a small pill even when closed - it's not
+   * something that unmounts, so it can double as its own trigger (e.g.
+   * LiquidMotionDrawer wires this to open the drawer while closed).
+   */
+  onClick?: () => void;
+  /**
+   * DOM tabIndex. Defaults to -1 (programmatically focusable only, e.g.
+   * for moving focus into the open dialog, but not Tab-reachable).
+   * Callers using `onClick` as a trigger should pass 0 so the pill is
+   * keyboard-reachable - when onClick is set, Enter/Space are handled
+   * automatically to activate it (matching native button semantics),
+   * regardless of what tabIndex is passed.
+   */
+  tabIndex?: number;
+  /** Additional keydown handler, called before the built-in Enter/Space-activates-onClick behavior. */
+  onKeyDown?: (event: KeyboardEvent<HTMLDivElement>) => void;
   children?: ReactNode;
 }
 
@@ -124,6 +143,9 @@ export const DrawerSurface = forwardRef<HTMLDivElement, DrawerSurfaceProps>(
       "aria-labelledby": ariaLabelledBy,
       className,
       style,
+      onClick,
+      tabIndex = -1,
+      onKeyDown,
       children,
     },
     ref,
@@ -193,6 +215,18 @@ export const DrawerSurface = forwardRef<HTMLDivElement, DrawerSurfaceProps>(
       ...style,
     };
 
+    // Plain divs don't natively activate on Enter/Space the way <button>
+    // does - if this surface is being used as its own trigger (onClick +
+    // tabIndex=0), this restores that expected keyboard behavior. Chained
+    // after any consumer-supplied onKeyDown rather than replacing it.
+    function handleKeyDown(event: KeyboardEvent<HTMLDivElement>) {
+      onKeyDown?.(event);
+      if (onClick && (event.key === "Enter" || event.key === " ")) {
+        event.preventDefault();
+        onClick();
+      }
+    }
+
     return (
       <>
         <motion.div
@@ -201,7 +235,9 @@ export const DrawerSurface = forwardRef<HTMLDivElement, DrawerSurfaceProps>(
           aria-modal={role === "dialog" ? isOpen : undefined}
           aria-label={ariaLabel}
           aria-labelledby={ariaLabelledBy}
-          tabIndex={-1}
+          tabIndex={tabIndex}
+          onClick={onClick}
+          onKeyDown={handleKeyDown}
           className={className}
           style={surfaceStyle}
           {...motionProps}
