@@ -1,0 +1,271 @@
+.liquid-glass-drawer {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 400px;
+    height: 100vh;
+    will-change: transform, opacity;
+    z-index: 1000;
+    border-top-left-radius: 24px;
+    border-bottom-left-radius: 24px;
+    overflow: hidden;
+    transform-origin: right center;
+    box-shadow: 0 0 0 rgba(0,0,0,0);
+}
+
+.liquid-glass-drawer.use-backdrop-filter .drawer-inner-shadow {
+    backdrop-filter: url(#liquidGlassFilterDrawer);
+    -webkit-backdrop-filter: url(#liquidGlassFilterDrawer);
+}
+
+.drawer-content-clone {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    border-radius: inherit;
+    z-index: 1;
+    will-change: filter;
+    contain: strict;
+    filter: url(#liquidGlassFilterDrawer);
+}
+
+/* Hide clone when using native backdrop-filter */
+.liquid-glass-drawer.use-backdrop-filter .drawer-content-clone {
+    display: none;
+}
+
+.drawer-content-inner {
+    position: absolute;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+    will-change: transform;
+    contain: layout style paint;
+}
+
+.drawer-inner-shadow {
+    width: 100%;
+    height: 100%;
+    border-radius: inherit;
+    will-change: transform, box-shadow;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 3;
+    pointer-events: none;
+}
+
+.drawer-actual-content {
+    position: relative;
+    z-index: 4;
+    width: 100%;
+    height: 100%;
+    padding: 2rem;
+    overflow-y: auto;
+    color: var(--text-primary, #fff);
+}
+
+.drawer-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.drawer-header h2 {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 600;
+}
+
+.close-btn {
+    background: transparent;
+    border: none;
+    color: inherit;
+    font-size: 1.5rem;
+    cursor: pointer;
+    opacity: 0.7;
+    transition: opacity 0.2s;
+}
+
+.close-btn:hover {
+    opacity: 1;
+}
+
+/* Controls inside drawer */
+.controls-panel {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border-radius: 12px;
+    border: 1px solid rgba(255,255,255,0.2);
+    padding: 1.5rem;
+    color: white;
+}
+
+@media (prefers-color-scheme: dark) {
+    .controls-panel {
+        background: rgba(30, 30, 40, 0.5);
+        border: 1px solid rgba(255,255,255,0.1);
+    }
+}
+
+.controls-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.controls-header-text {
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    font-size: 10px;
+    opacity: 0.7;
+}
+
+.controls-header-line {
+    flex: 1;
+    height: 1px;
+    background: rgba(255,255,255,0.2);
+}
+
+.control-row {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.control-row:last-child {
+    margin-bottom: 0;
+}
+
+.control-label {
+    width: 120px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-size: 11px;
+    opacity: 0.8;
+    flex-shrink: 0;
+}
+
+.control-value {
+    width: 40px;
+    text-align: right;
+    font-family: "SF Mono", Monaco, "Cascadia Code", monospace;
+    font-size: 11px;
+    opacity: 0.6;
+    font-variant-numeric: tabular-nums;
+    flex-shrink: 0;
+}
+
+.control-slider {
+    flex: 1;
+    -webkit-appearance: none;
+    appearance: none;
+    height: 2px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 1px;
+    outline: none;
+}
+
+.control-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    cursor: pointer;
+    transition: transform 0.15s ease;
+}
+
+.control-slider::-webkit-slider-thumb:hover {
+    transform: scale(1.2);
+}
+
+.control-slider::-moz-range-thumb {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    cursor: pointer;
+    border: none;
+}
+
+.surface-selector {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    flex: 1;
+}
+
+.surface-btn {
+    padding: 0.5rem 1rem;
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 8px;
+    background: transparent;
+    color: white;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.surface-btn:hover {
+    background: rgba(102, 126, 234, 0.2);
+    border-color: #667eea;
+}
+
+.surface-btn.active {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    border-color: transparent;
+}
+
+.mode-toggle {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.mode-toggle-switch {
+    position: relative;
+    width: 44px;
+    height: 24px;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.mode-toggle-switch.active {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+}
+
+.mode-toggle-switch::after {
+    content: "";
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 20px;
+    height: 20px;
+    background: white;
+    border-radius: 50%;
+    transition: transform 0.2s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.mode-toggle-switch.active::after {
+    transform: translateX(20px);
+}
+
+.mode-toggle-value {
+    font-size: 10px;
+    font-family: "SF Mono", Monaco, "Cascadia Code", monospace;
+    opacity: 0.6;
+    min-width: 100px;
+}
