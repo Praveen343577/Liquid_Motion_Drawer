@@ -1,6 +1,6 @@
 import { useState } from "react";
 import "./App.css";
-import bgImage from "./assets/background_1.jpg";
+import bgImage from "./assets/background_3.jpg";
 import { LiquidGlassDrawer } from "./components/LiquidGlassDrawer";
 
 export default function App() {

@@ -371,11 +371,12 @@ export const LiquidGlassDrawer: React.FC<LiquidGlassDrawerProps> = ({
   }, [isOpen, springs, useBackdrop]);
 
   return (
-    <div 
-      ref={drawerRef}
-      className={`liquid-glass-drawer ${useBackdrop ? "use-backdrop-filter" : ""} ${className}`} 
-      style={{ opacity: 0, pointerEvents: "none" }}
-    >
+    <>
+      <div 
+        ref={drawerRef}
+        className={`liquid-glass-drawer ${useBackdrop ? "use-backdrop-filter" : ""} ${className}`} 
+        style={{ opacity: 0, pointerEvents: "none" }}
+      >
       {/* Fallback structure */}
       <div className="drawer-content-clone">
         <div ref={cloneInnerRef} className="drawer-content-inner">
@@ -407,9 +408,19 @@ export const LiquidGlassDrawer: React.FC<LiquidGlassDrawerProps> = ({
           <h2>Liquid Drawer</h2>
           <button className="close-btn" onClick={onClose} aria-label="Close drawer">✕</button>
         </div>
+      </div>
+    </div>
 
-        {/* Live Parameter Controls */}
-        <div className="controls-panel">
+    {/* Live Parameter Controls */}
+    <div 
+      className="controls-panel"
+      style={{
+        opacity: isOpen ? 1 : 0,
+        pointerEvents: isOpen ? "auto" : "none",
+        transform: isOpen ? "translateY(0)" : "translateY(20px)",
+        transition: "all 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
+      }}
+    >
           <div className="controls-header">
             <span className="controls-header-text">Parameters</span>
             <span className="controls-header-line" />
@@ -468,7 +479,6 @@ export const LiquidGlassDrawer: React.FC<LiquidGlassDrawerProps> = ({
             <input type="range" className="control-slider" min={0} max={10} step={0.1} value={blur} onChange={(e) => setBlur(Number(e.target.value))} />
           </div>
         </div>
-      </div>
-    </div>
+    </>
   );
 };
