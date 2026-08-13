@@ -1,17 +1,3 @@
-/**
- * surfaceEquations.ts
- *
- * Defines the height profile of the glass bezel — for a given normalized
- * position x ∈ [0, 1] along the bezel (0 = outer rim, 1 = flat interior),
- * each function returns the normalized surface height y ∈ [0, 1] at that
- * point. calculateDisplacementMap1D (liquidMath.ts) walks this curve and
- * differentiates it to get a surface normal, which is what actually gets
- * refracted.
- *
- * Ported verbatim from the vanilla demo's `SurfaceEquations` object
- * (blueprint A.2) — the math itself is untouched, only the typing changed.
- */
-
 import type { SurfaceType } from "../config/liquidConstants";
 
 /** A bezel profile function: normalized position → normalized height. */

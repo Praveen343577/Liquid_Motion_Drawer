@@ -1,24 +1,3 @@
-/**
- * liquidMath.ts
- *
- * The actual optics. Three pure functions, ported verbatim from the vanilla
- * demo (blueprint A.1) — only the typing and constant sourcing changed, the
- * math is untouched so the drawer refracts identically to the lens demo.
- *
- * Pipeline:
- *   1. calculateDisplacementMap1D  — Snell's-law refraction along one radius
- *      of the bezel, producing a 1D lookup table of displacement magnitudes.
- *   2. calculateDisplacementMap2D  — projects that 1D table around a rounded
- *      rect, producing a full ImageData bitmap (R = dx, G = dy) suitable for
- *      feDisplacementMap.
- *   3. calculateSpecularHighlight  — separately renders a directional glare
- *      band along the same bezel edge.
- *
- * None of these touch the DOM beyond constructing an ImageData — no canvas,
- * no React. imageRenderer.ts is what turns the output into something a
- * browser can actually display.
- */
-
 import {
   DISPLACEMENT_SAMPLES,
   SPECULAR_ANGLE,

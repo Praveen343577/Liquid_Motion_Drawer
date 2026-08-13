@@ -1,38 +1,3 @@
-/**
- * LiquidMotionDrawer.tsx
- *
- * The public entry point. Blueprint: "Root Portal coordinator, prop
- * definition." Portals DrawerOverlay + DrawerSurface into document.body
- * (or a supplied container), owns open/close state, and wires the two
- * together with focus management.
- *
- * Two design decisions worth flagging before the interaction model below,
- * both inferred from earlier files rather than stated outright anywhere
- * in the blueprint:
- *
- * 1. The closed surface IS its own trigger. CLOSED_VARIANT (blueprint
- *    D.3) is a persistent 50x50 pill, not something that unmounts - this
- *    only makes sense as a FAB-style "tap the pill to expand it" pattern
- *    (Material's container-transform, or iOS's Dynamic Island). So this
- *    component wires DrawerSurface's onClick to open() whenever closed,
- *    and gives it tabIndex=0 + role="button" + Enter/Space activation
- *    (added to DrawerSurface for exactly this) while closed, switching to
- *    role="dialog" + aria-modal once open. If you're providing your own
- *    separate trigger elsewhere in your app instead, set
- *    `surfaceIsTrigger={false}` to disable this and drive `open` entirely
- *    externally.
- *
- * 2. Controlled + uncontrolled, like most quality primitives (Radix,
- *    Headless UI): pass `open` + `onOpenChange` to drive it yourself, or
- *    `defaultOpen` (or nothing) to let this component manage its own
- *    state while still notifying you via `onOpenChange`.
- *
- * Default positioning (position: fixed, bottom-right anchor) is a
- * genuinely opinionated default, not a universal answer - "drawer"
- * placement varies a lot by app (bottom sheet, side panel, FAB-expand).
- * It's fully overridable via `style`/`className` on the surface.
- */
-
 import {
   useCallback,
   useEffect,

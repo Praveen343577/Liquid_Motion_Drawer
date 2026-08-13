@@ -1,41 +1,17 @@
-/**
- * LiquidConstants.ts
- *
- * Central source of truth for every tunable number the Liquid Motion Drawer
- * depends on. Values are ported 1:1 from the vanilla "Liquid Glass" demo
- * (the magnifying-lens element) so the drawer reproduces the same optical
- * behavior. Nothing in this file touches React — it's pure config/types,
- * consumed by core/, hooks/, and components/.
- */
-
-/** The four bezel height-profile shapes supported by core/surfaceEquations.ts */
 export type SurfaceType = "convex_circle" | "convex_squircle" | "concave" | "lip";
 
 /** Physical/optical parameters that feed the displacement + specular map math. */
 export interface LiquidOpticsConfig {
-  /** Which bezel profile to use. */
-  surfaceType: SurfaceType;
-  /** How wide the refracting bezel band is, in px. */
-  bezelWidth: number;
-  /** Simulated glass thickness, in px — controls how "deep" the refraction reads. */
-  glassThickness: number;
-  /** Index of refraction used in the Snell's-law calculation (glass ≈ 1.5). */
-  refractiveIndex: number;
-  /** Multiplier applied on top of the computed max displacement. */
-  refractionScale: number;
-  /** Opacity (alpha slope) of the specular highlight layer, 0–1. */
-  specularOpacity: number;
-  /** Saturation boost applied to the refracted content behind the glass (feColorMatrix's `values`, applied to the *displaced* result — not the specular layer, despite the similarly-named specularOpacity above). */
-  saturation: number;
-  /** feGaussianBlur stdDeviation applied before displacement. */
-  blur: number;
+  surfaceType: SurfaceType;       /** Which bezel profile to use. */
+  bezelWidth: number;             /** How wide the refracting bezel band is, in px. */
+  glassThickness: number;         /** Simulated glass thickness, in px — controls how "deep" the refraction reads. */
+  refractiveIndex: number;        /** Index of refraction used in the Snell's-law calculation (glass ≈ 1.5). */
+  refractionScale: number;        /** Multiplier applied on top of the computed max displacement. */
+  specularOpacity: number;        /** Opacity (alpha slope) of the specular highlight layer, 0–1. */
+  saturation: number;             /** Saturation boost applied to the refracted content behind the glass (feColorMatrix's `values`, applied to the *displaced* result — not the specular layer, despite the similarly-named specularOpacity above). */
+  blur: number;                   /** feGaussianBlur stdDeviation applied before displacement. */
 }
 
-/**
- * Defaults matched to the demo's magnifying-lens `state` object
- * (see scripts.js: bezelWidth 30, glassThickness 150, refractiveIndex 1.5,
- * refractionScale 1.5, specularOpacity 1, blur 0.5).
- */
 export const DEFAULT_LIQUID_OPTICS: LiquidOpticsConfig = {
   surfaceType: "convex_squircle",
   bezelWidth: 30,
