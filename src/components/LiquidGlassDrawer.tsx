@@ -103,7 +103,7 @@ function calculateDisplacementMap1D(glassThickness: number, bezelWidth: number, 
   return result;
 }
 
-function calculateDisplacementMap2D(cW: number, cH: number, oW: number, oH: number, radius: number, bezelWidth: number, maxDisp: number, precomputed: number[], bulgeMode: "bevel" | "full") {
+function calculateDisplacementMap2D(cW: number, cH: number, oW: number, oH: number, radius: number, bezelWidth: number, maxDisp: number, precomputed: number[]) {
   const imageData = new ImageData(cW, cH);
   for (let i = 0; i < imageData.data.length; i += 4) {
     imageData.data[i] = 128; imageData.data[i + 1] = 128;
@@ -120,61 +120,31 @@ function calculateDisplacementMap2D(cW: number, cH: number, oW: number, oH: numb
     for (let x1 = 0; x1 < oW; x1++) {
       const idx = ((oy + y1) * cW + ox + x1) * 4;
 
-      if (bulgeMode === "full") {
-        const cx = oW / 2;
-        const cy = oH / 2;
-        const dx = x1 - cx;
-        const dy = y1 - cy;
-        const nx = dx / cx;
-        const ny = dy / cy;
-        
-        // Squircle-like normalized distance
-        const dFC = Math.sqrt(nx * nx + ny * ny);
-        
-        const bR = Math.max(0, Math.min(1, 1 - dFC)); // 1 at center, 0 at edge
+      const x = x1 < radius ? x1 - radius : x1 >= oW - radius ? x1 - radius - wBR : 0;
+      const y = y1 < radius ? y1 - radius : y1 >= oH - radius ? y1 - radius - hBR : 0;
+      const d2 = x * x + y * y;
+      if (d2 <= rp1Sq && d2 >= rmbSq) {
+        const op = d2 < rSq ? 1 : 1 - (Math.sqrt(d2) - Math.sqrt(rSq)) / (Math.sqrt(rp1Sq) - Math.sqrt(rSq));
+        const dFC = Math.sqrt(d2);
+        const dFS = radius - dFC;
+        const cos = dFC > 0 ? x / dFC : 0;
+        const sin = dFC > 0 ? y / dFC : 0;
+        const bR = Math.max(0, Math.min(1, dFS / bezelWidth));
         const bI = Math.floor(bR * precomputed.length);
         const dist = precomputed[Math.max(0, Math.min(bI, precomputed.length - 1))] || 0;
-        
-        const distC = Math.sqrt(dx * dx + dy * dy);
-        const cos = distC > 0 ? dx / distC : 0;
-        const sin = distC > 0 ? dy / distC : 0;
-        
         const dX = maxDisp > 0 ? (-cos * dist) / maxDisp : 0;
         const dY = maxDisp > 0 ? (-sin * dist) / maxDisp : 0;
-        
-        const op = dFC < 1 ? 1 : Math.max(0, 1 - (dFC - 1) * 5); 
-        
         imageData.data[idx] = Math.max(0, Math.min(255, 128 + dX * 127 * op));
         imageData.data[idx + 1] = Math.max(0, Math.min(255, 128 + dY * 127 * op));
         imageData.data[idx + 2] = 0;
         imageData.data[idx + 3] = 255;
-      } else {
-        const x = x1 < radius ? x1 - radius : x1 >= oW - radius ? x1 - radius - wBR : 0;
-        const y = y1 < radius ? y1 - radius : y1 >= oH - radius ? y1 - radius - hBR : 0;
-        const d2 = x * x + y * y;
-        if (d2 <= rp1Sq && d2 >= rmbSq) {
-          const op = d2 < rSq ? 1 : 1 - (Math.sqrt(d2) - Math.sqrt(rSq)) / (Math.sqrt(rp1Sq) - Math.sqrt(rSq));
-          const dFC = Math.sqrt(d2);
-          const dFS = radius - dFC;
-          const cos = dFC > 0 ? x / dFC : 0;
-          const sin = dFC > 0 ? y / dFC : 0;
-          const bR = Math.max(0, Math.min(1, dFS / bezelWidth));
-          const bI = Math.floor(bR * precomputed.length);
-          const dist = precomputed[Math.max(0, Math.min(bI, precomputed.length - 1))] || 0;
-          const dX = maxDisp > 0 ? (-cos * dist) / maxDisp : 0;
-          const dY = maxDisp > 0 ? (-sin * dist) / maxDisp : 0;
-          imageData.data[idx] = Math.max(0, Math.min(255, 128 + dX * 127 * op));
-          imageData.data[idx + 1] = Math.max(0, Math.min(255, 128 + dY * 127 * op));
-          imageData.data[idx + 2] = 0;
-          imageData.data[idx + 3] = 255;
-        }
       }
     }
   }
   return imageData;
 }
 
-function calculateSpecularHighlight(oW: number, oH: number, radius: number, bulgeMode: "bevel" | "full") {
+function calculateSpecularHighlight(oW: number, oH: number, radius: number) {
   const imageData = new ImageData(oW, oH);
   const sv = [Math.cos(Math.PI / 3), Math.sin(Math.PI / 3)];
   const st = 1.5;
@@ -187,52 +157,25 @@ function calculateSpecularHighlight(oW: number, oH: number, radius: number, bulg
     for (let x1 = 0; x1 < oW; x1++) {
       const idx = (y1 * oW + x1) * 4;
 
-      if (bulgeMode === "full") {
-        const cx = oW / 2;
-        const cy = oH / 2;
-        const dx = x1 - cx;
-        const dy = y1 - cy;
-        const nx = dx / cx;
-        const ny = dy / cy;
-        const dFC = Math.sqrt(nx * nx + ny * ny);
-        
-        const distC = Math.sqrt(dx * dx + dy * dy);
-        const cos = distC > 0 ? dx / distC : 0;
-        const sin = distC > 0 ? -dy / distC : 0;
-        
+      const x = x1 < radius ? x1 - radius : x1 >= oW - radius ? x1 - radius - wBR : 0;
+      const y = y1 < radius ? y1 - radius : y1 >= oH - radius ? y1 - radius - hBR : 0;
+      const d2 = x * x + y * y;
+      if (d2 <= rp1Sq && d2 >= rmsSq) {
+        const dFC = Math.sqrt(d2);
+        const dFS = radius - dFC;
+        const op = d2 < rSq ? 1 : 1 - (dFC - Math.sqrt(rSq)) / (Math.sqrt(rp1Sq) - Math.sqrt(rSq));
+        const cos = dFC > 0 ? x / dFC : 0;
+        const sin = dFC > 0 ? -y / dFC : 0;
         const dot = Math.abs(cos * sv[0] + sin * sv[1]);
-        const eR = Math.max(0, Math.min(1, 1 - dFC)); 
+        const eR = Math.max(0, Math.min(1, dFS / st));
         const sharpFalloff = Math.sqrt(1 - (1 - eR) * (1 - eR));
         const coeff = dot * sharpFalloff;
         const color = Math.min(255, 255 * coeff);
-        const op = dFC < 1 ? 1 : Math.max(0, 1 - (dFC - 1) * 5); 
         const finalOp = Math.min(255, color * coeff * op);
-        
         imageData.data[idx] = color;
         imageData.data[idx + 1] = color;
         imageData.data[idx + 2] = color;
         imageData.data[idx + 3] = finalOp;
-      } else {
-        const x = x1 < radius ? x1 - radius : x1 >= oW - radius ? x1 - radius - wBR : 0;
-        const y = y1 < radius ? y1 - radius : y1 >= oH - radius ? y1 - radius - hBR : 0;
-        const d2 = x * x + y * y;
-        if (d2 <= rp1Sq && d2 >= rmsSq) {
-          const dFC = Math.sqrt(d2);
-          const dFS = radius - dFC;
-          const op = d2 < rSq ? 1 : 1 - (dFC - Math.sqrt(rSq)) / (Math.sqrt(rp1Sq) - Math.sqrt(rSq));
-          const cos = dFC > 0 ? x / dFC : 0;
-          const sin = dFC > 0 ? -y / dFC : 0;
-          const dot = Math.abs(cos * sv[0] + sin * sv[1]);
-          const eR = Math.max(0, Math.min(1, dFS / st));
-          const sharpFalloff = Math.sqrt(1 - (1 - eR) * (1 - eR));
-          const coeff = dot * sharpFalloff;
-          const color = Math.min(255, 255 * coeff);
-          const finalOp = Math.min(255, color * coeff * op);
-          imageData.data[idx] = color;
-          imageData.data[idx + 1] = color;
-          imageData.data[idx + 2] = color;
-          imageData.data[idx + 3] = finalOp;
-        }
       }
     }
   }
@@ -266,7 +209,6 @@ export const LiquidGlassDrawer: React.FC<LiquidGlassDrawerProps> = ({
   const [backdropSupported, setBackdropSupported] = useState(false);
 
   // Parameters
-  const [bulgeMode, setBulgeMode] = useState<"bevel" | "full">("full");
   const [surfaceType, setSurfaceType] = useState(DEFAULTS.surfaceType);
   const [bezelWidth, setBezelWidth] = useState(DEFAULTS.bezelWidth);
   const [glassThickness, setGlassThickness] = useState(DEFAULTS.glassThickness);
@@ -348,10 +290,10 @@ export const LiquidGlassDrawer: React.FC<LiquidGlassDrawerProps> = ({
     const dispData = calculateDisplacementMap2D(
       drawerSize.w, drawerSize.h, 
       drawerSize.w, drawerSize.h, 
-      radius, bezelWidth, maxDisp || 1, precomputed, bulgeMode
+      radius, bezelWidth, maxDisp || 1, precomputed
     );
     
-    const specData = calculateSpecularHighlight(drawerSize.w, drawerSize.h, radius, bulgeMode);
+    const specData = calculateSpecularHighlight(drawerSize.w, drawerSize.h, radius);
 
     const dispUrl = imageDataToDataURL(dispData);
     const specUrl = imageDataToDataURL(specData);
@@ -363,7 +305,7 @@ export const LiquidGlassDrawer: React.FC<LiquidGlassDrawerProps> = ({
     specularAlphaRef.current?.setAttribute("slope", String(specularOpacity));
     filterBlurRef.current?.setAttribute("stdDeviation", String(blur));
 
-  }, [surfaceType, bezelWidth, glassThickness, refractionScale, specularOpacity, blur, drawerSize, bulgeMode]);
+  }, [surfaceType, bezelWidth, glassThickness, refractionScale, specularOpacity, blur, drawerSize]);
 
   // Spring Animation Loop
   useEffect(() => {
@@ -487,17 +429,6 @@ export const LiquidGlassDrawer: React.FC<LiquidGlassDrawerProps> = ({
           </div>
 
           <div className="control-row">
-            <label className="control-label">Bulge Mode</label>
-            <div className="mode-toggle">
-              <div 
-                className={`mode-toggle-switch ${bulgeMode === "full" ? "active" : ""}`} 
-                onClick={() => setBulgeMode(bulgeMode === "full" ? "bevel" : "full")} 
-              />
-              <span className="mode-toggle-value">{bulgeMode === "full" ? "Full Surface" : "Bevel Only"}</span>
-            </div>
-          </div>
-
-          <div className="control-row">
             <label className="control-label">Surface Type</label>
             <div className="surface-selector">
               {SURFACE_TYPES.map((s) => (
@@ -524,7 +455,7 @@ export const LiquidGlassDrawer: React.FC<LiquidGlassDrawerProps> = ({
             </div>
           </div>
 
-          <div className="control-row" style={{ opacity: bulgeMode === "full" ? 0.5 : 1, pointerEvents: bulgeMode === "full" ? "none" : "auto" }}>
+          <div className="control-row">
             <label className="control-label">Bezel Width</label>
             <span className="control-value">{Math.round(bezelWidth)}</span>
             <input type="range" className="control-slider" min={5} max={70} value={bezelWidth} onChange={(e) => setBezelWidth(Number(e.target.value))} />
