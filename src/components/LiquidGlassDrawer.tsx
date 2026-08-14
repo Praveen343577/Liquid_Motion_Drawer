@@ -21,6 +21,7 @@ interface PhysicsState {
 const DEFAULTS = {
   surfaceType: "convex_squircle",
   bezelWidth: 30,
+  drawerRadius: 24,
   glassThickness: 150,
   refractiveIndex: 1.5,
   refractionScale: 1.5,
@@ -226,6 +227,7 @@ export const LiquidGlassDrawer: React.FC<LiquidGlassDrawerProps> = ({
   // Parameters
   const [surfaceType, setSurfaceType] = useState(DEFAULTS.surfaceType);
   const [bezelWidth, setBezelWidth] = useState(DEFAULTS.bezelWidth);
+  const [drawerRadius, setDrawerRadius] = useState(DEFAULTS.drawerRadius);
   const [glassThickness, setGlassThickness] = useState(DEFAULTS.glassThickness);
   const [refractionScale, setRefractionScale] = useState(DEFAULTS.refractionScale);
   const [specularOpacity, setSpecularOpacity] = useState(DEFAULTS.specularOpacity);
@@ -292,7 +294,7 @@ export const LiquidGlassDrawer: React.FC<LiquidGlassDrawerProps> = ({
     const surfaceFn = SurfaceEquations[surfaceType];
     if (!surfaceFn) return;
 
-    const radius = 24; // Assuming standard corner radius for the drawer
+    const radius = drawerRadius;
 
     const precomputed = calculateDisplacementMap1D(
       glassThickness,
@@ -320,7 +322,7 @@ export const LiquidGlassDrawer: React.FC<LiquidGlassDrawerProps> = ({
     specularAlphaRef.current?.setAttribute("slope", String(specularOpacity));
     filterBlurRef.current?.setAttribute("stdDeviation", String(blur));
 
-  }, [surfaceType, bezelWidth, glassThickness, refractionScale, specularOpacity, blur, drawerSize]);
+  }, [surfaceType, bezelWidth, drawerRadius, glassThickness, refractionScale, specularOpacity, blur, drawerSize]);
 
   // Spring Animation Loop
   useEffect(() => {
@@ -392,7 +394,7 @@ export const LiquidGlassDrawer: React.FC<LiquidGlassDrawerProps> = ({
       <div 
         ref={drawerRef}
         className={`liquid-glass-drawer ${useBackdrop ? "use-backdrop-filter" : ""} ${className}`} 
-        style={{ opacity: 0, pointerEvents: "none" }}
+        style={{ opacity: 0, pointerEvents: "none", borderRadius: drawerRadius }}
       >
       {/* Fallback structure */}
       <div className="drawer-content-clone">
@@ -474,6 +476,11 @@ export const LiquidGlassDrawer: React.FC<LiquidGlassDrawerProps> = ({
             <label className="control-label">Bezel Width</label>
             <span className="control-value">{Math.round(bezelWidth)}</span>
             <input type="range" className="control-slider" min={5} max={100} value={bezelWidth} onChange={(e) => setBezelWidth(Number(e.target.value))} />
+          </div>
+          <div className="control-row">
+            <label className="control-label">Drawer Radius</label>
+            <span className="control-value">{Math.round(drawerRadius)}</span>
+            <input type="range" className="control-slider" min={0} max={100} value={drawerRadius} onChange={(e) => setDrawerRadius(Number(e.target.value))} />
           </div>
           <div className="control-row">
             <label className="control-label">Glass Thickness</label>
