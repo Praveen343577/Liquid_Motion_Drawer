@@ -103,41 +103,65 @@ function calculateDisplacementMap1D(glassThickness: number, bezelWidth: number, 
   return result;
 }
 
+function getSDF(x1: number, y1: number, oW: number, oH: number, radius: number) {
+  const cx = oW / 2;
+  const cy = oH / 2;
+  const dx = x1 - cx; 
+  const dy = y1 - cy;
+  const px = Math.abs(dx);
+  const py = Math.abs(dy);
+  const qx = px - (cx - radius);
+  const qy = py - (cy - radius);
+  
+  let dFS = 0;
+  let nx = 0;
+  let ny = 0;
+
+  if (qx > 0 && qy > 0) {
+    const len = Math.sqrt(qx * qx + qy * qy);
+    dFS = radius - len;
+    if (len > 0) {
+      nx = -(dx > 0 ? 1 : -1) * (qx / len);
+      ny = -(dy > 0 ? 1 : -1) * (qy / len);
+    }
+  } else {
+    dFS = radius - Math.max(qx, qy); 
+    if (qx > qy) {
+      nx = dx > 0 ? -1 : 1;
+      ny = 0;
+    } else {
+      nx = 0;
+      ny = dy > 0 ? -1 : 1;
+    }
+  }
+  return { dFS, nx, ny };
+}
+
 function calculateDisplacementMap2D(cW: number, cH: number, oW: number, oH: number, radius: number, bezelWidth: number, maxDisp: number, precomputed: number[]) {
   const imageData = new ImageData(cW, cH);
   for (let i = 0; i < imageData.data.length; i += 4) {
     imageData.data[i] = 128; imageData.data[i + 1] = 128;
     imageData.data[i + 2] = 0; imageData.data[i + 3] = 255;
   }
-  const rSq = radius * radius;
-  const rp1Sq = (radius + 1) ** 2;
-  const rmbSq = Math.max(0, (radius - bezelWidth) ** 2);
-  const wBR = oW - radius * 2;
-  const hBR = oH - radius * 2;
+  
   const ox = (cW - oW) / 2;
   const oy = (cH - oH) / 2;
+
   for (let y1 = 0; y1 < oH; y1++) {
     for (let x1 = 0; x1 < oW; x1++) {
       const idx = ((oy + y1) * cW + ox + x1) * 4;
+      const { dFS, nx, ny } = getSDF(x1, y1, oW, oH, radius);
 
-      const x = x1 < radius ? x1 - radius : x1 >= oW - radius ? x1 - radius - wBR : 0;
-      const y = y1 < radius ? y1 - radius : y1 >= oH - radius ? y1 - radius - hBR : 0;
-      const d2 = x * x + y * y;
-      if (d2 <= rp1Sq && d2 >= rmbSq) {
-        const op = d2 < rSq ? 1 : 1 - (Math.sqrt(d2) - Math.sqrt(rSq)) / (Math.sqrt(rp1Sq) - Math.sqrt(rSq));
-        const dFC = Math.sqrt(d2);
-        const dFS = radius - dFC;
-        const cos = dFC > 0 ? x / dFC : 0;
-        const sin = dFC > 0 ? y / dFC : 0;
-        const bR = Math.max(0, Math.min(1, dFS / bezelWidth));
+      if (dFS >= -1 && dFS <= bezelWidth) {
+        const op = dFS < 0 ? 1 + dFS : 1;
+        const bR = Math.max(0, dFS / bezelWidth);
         const bI = Math.floor(bR * precomputed.length);
         const dist = precomputed[Math.max(0, Math.min(bI, precomputed.length - 1))] || 0;
-        const dX = maxDisp > 0 ? (-cos * dist) / maxDisp : 0;
-        const dY = maxDisp > 0 ? (-sin * dist) / maxDisp : 0;
+        const dX = maxDisp > 0 ? (nx * dist) / maxDisp : 0;
+        const dY = maxDisp > 0 ? (ny * dist) / maxDisp : 0;
+        
         imageData.data[idx] = Math.max(0, Math.min(255, 128 + dX * 127 * op));
         imageData.data[idx + 1] = Math.max(0, Math.min(255, 128 + dY * 127 * op));
-        imageData.data[idx + 2] = 0;
-        imageData.data[idx + 3] = 255;
       }
     }
   }
@@ -148,30 +172,21 @@ function calculateSpecularHighlight(oW: number, oH: number, radius: number) {
   const imageData = new ImageData(oW, oH);
   const sv = [Math.cos(Math.PI / 3), Math.sin(Math.PI / 3)];
   const st = 1.5;
-  const rSq = radius * radius;
-  const rp1Sq = (radius + 1) ** 2;
-  const rmsSq = Math.max(0, (radius - st) ** 2);
-  const wBR = oW - radius * 2;
-  const hBR = oH - radius * 2;
+
   for (let y1 = 0; y1 < oH; y1++) {
     for (let x1 = 0; x1 < oW; x1++) {
       const idx = (y1 * oW + x1) * 4;
+      const { dFS, nx, ny } = getSDF(x1, y1, oW, oH, radius);
 
-      const x = x1 < radius ? x1 - radius : x1 >= oW - radius ? x1 - radius - wBR : 0;
-      const y = y1 < radius ? y1 - radius : y1 >= oH - radius ? y1 - radius - hBR : 0;
-      const d2 = x * x + y * y;
-      if (d2 <= rp1Sq && d2 >= rmsSq) {
-        const dFC = Math.sqrt(d2);
-        const dFS = radius - dFC;
-        const op = d2 < rSq ? 1 : 1 - (dFC - Math.sqrt(rSq)) / (Math.sqrt(rp1Sq) - Math.sqrt(rSq));
-        const cos = dFC > 0 ? x / dFC : 0;
-        const sin = dFC > 0 ? -y / dFC : 0;
-        const dot = Math.abs(cos * sv[0] + sin * sv[1]);
-        const eR = Math.max(0, Math.min(1, dFS / st));
+      if (dFS >= -1 && dFS <= st) {
+        const op = dFS < 0 ? 1 + dFS : 1;
+        const dot = Math.abs(-nx * sv[0] + ny * sv[1]);
+        const eR = Math.max(0, dFS / st);
         const sharpFalloff = Math.sqrt(1 - (1 - eR) * (1 - eR));
         const coeff = dot * sharpFalloff;
         const color = Math.min(255, 255 * coeff);
         const finalOp = Math.min(255, color * coeff * op);
+        
         imageData.data[idx] = color;
         imageData.data[idx + 1] = color;
         imageData.data[idx + 2] = color;
@@ -458,7 +473,7 @@ export const LiquidGlassDrawer: React.FC<LiquidGlassDrawerProps> = ({
           <div className="control-row">
             <label className="control-label">Bezel Width</label>
             <span className="control-value">{Math.round(bezelWidth)}</span>
-            <input type="range" className="control-slider" min={5} max={70} value={bezelWidth} onChange={(e) => setBezelWidth(Number(e.target.value))} />
+            <input type="range" className="control-slider" min={5} max={100} value={bezelWidth} onChange={(e) => setBezelWidth(Number(e.target.value))} />
           </div>
           <div className="control-row">
             <label className="control-label">Glass Thickness</label>
