@@ -4,7 +4,6 @@ import "./LiquidGlassDrawer.css";
 // --- Types ---
 export interface LiquidGlassDrawerProps {
   isOpen: boolean;
-  onClose: () => void;
   children?: ReactNode; // Main app content to be cloned as fallback
   className?: string;
 }
@@ -217,7 +216,6 @@ function detectBackdropFilterSupport() {
 // --- Component ---
 export const LiquidGlassDrawer: React.FC<LiquidGlassDrawerProps> = ({
   isOpen,
-  onClose,
   children,
   className = "",
 }) => {
@@ -421,13 +419,7 @@ export const LiquidGlassDrawer: React.FC<LiquidGlassDrawerProps> = ({
 
       <div className="drawer-inner-shadow" />
 
-      {/* Drawer Content */}
-      <div className="drawer-actual-content">
-        <div className="drawer-header">
-          <h2>Liquid Drawer</h2>
-          <button className="close-btn" onClick={onClose} aria-label="Close drawer">✕</button>
-        </div>
-      </div>
+
     </div>
 
     {/* Live Parameter Controls */}
@@ -480,7 +472,7 @@ export const LiquidGlassDrawer: React.FC<LiquidGlassDrawerProps> = ({
           <div className="control-row">
             <label className="control-label">Drawer Radius</label>
             <span className="control-value">{Math.round(drawerRadius)}</span>
-            <input type="range" className="control-slider" min={0} max={100} value={drawerRadius} onChange={(e) => setDrawerRadius(Number(e.target.value))} />
+            <input type="range" className="control-slider" min={0} max={500} value={drawerRadius} onChange={(e) => setDrawerRadius(Number(e.target.value))} />
           </div>
           <div className="control-row">
             <label className="control-label">Glass Thickness</label>

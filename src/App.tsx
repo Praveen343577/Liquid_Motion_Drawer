@@ -52,7 +52,7 @@ export default function App() {
         {isOpen ? "✕" : "◆"}
       </button>
 
-      <LiquidGlassDrawer isOpen={isOpen} onClose={() => setIsOpen(false)}>
+      <LiquidGlassDrawer isOpen={isOpen}>
         {appContent}
       </LiquidGlassDrawer>
     </>
