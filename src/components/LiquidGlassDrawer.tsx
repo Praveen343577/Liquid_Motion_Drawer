@@ -371,8 +371,8 @@ export const LiquidGlassDrawer: React.FC<LiquidGlassDrawerProps> = ({
     filterBlurRef.current?.setAttribute("stdDeviation", String(blur));
 
     // --- Box Computation ---
-    const boxSize = 50;
-    const boxRadius = Math.min(drawerRadius, 25);
+    const boxSize = 200;
+    const boxRadius = Math.min(drawerRadius, 100);
     const dispDataBox = calculateDisplacementMap2D(
       boxSize, boxSize, boxSize, boxSize, 
       boxRadius, bezelWidth, maxDisp || 1, precomputed
@@ -481,10 +481,10 @@ export const LiquidGlassDrawer: React.FC<LiquidGlassDrawerProps> = ({
           </filter>
           <filter id="liquidGlassFilterBox" x="-50%" y="-50%" width="200%" height="200%" colorInterpolationFilters="sRGB">
             <feGaussianBlur ref={filterBlurBoxRef} in="SourceGraphic" stdDeviation={blur} result="blurred" />
-            <feImage ref={displacementImageBoxRef} href="" x="0" y="0" width="50" height="50" result="displacement_map" preserveAspectRatio="none" />
+            <feImage ref={displacementImageBoxRef} href="" x="0" y="0" width="200" height="200" result="displacement_map" preserveAspectRatio="none" />
             <feDisplacementMap ref={displacementMapBoxRef} in="blurred" in2="displacement_map" scale={50} xChannelSelector="R" yChannelSelector="G" result="displaced" />
             <feColorMatrix in="displaced" type="saturate" values="1.3" result="displaced_saturated" />
-            <feImage ref={specularImageBoxRef} href="" x="0" y="0" width="50" height="50" result="specular_layer" preserveAspectRatio="none" />
+            <feImage ref={specularImageBoxRef} href="" x="0" y="0" width="200" height="200" result="specular_layer" preserveAspectRatio="none" />
             <feComponentTransfer in="specular_layer" result="specular_faded">
               <feFuncA ref={specularAlphaBoxRef} type="linear" slope={specularOpacity} />
             </feComponentTransfer>
@@ -503,9 +503,9 @@ export const LiquidGlassDrawer: React.FC<LiquidGlassDrawerProps> = ({
         position: "fixed",
         left: boxPos.x,
         top: boxPos.y,
-        width: 100,
-        height: 100,
-        borderRadius: Math.min(drawerRadius, 50),
+        width: 200,
+        height: 200,
+        borderRadius: Math.min(drawerRadius, 100),
         zIndex: 2500,
         cursor: isDraggingRef.current ? "grabbing" : "grab",
       }}
