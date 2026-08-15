@@ -232,6 +232,12 @@ export const LiquidGlassDrawer: React.FC<LiquidGlassDrawerProps> = ({
   const [blur, setBlur] = useState(DEFAULTS.blur);
 
   const [drawerSize, setDrawerSize] = useState({ w: 0, h: 0 });
+  const [boxPos, setBoxPos] = useState({ 
+    x: typeof window !== 'undefined' ? window.innerWidth / 2 - 25 : 0, 
+    y: typeof window !== 'undefined' ? window.innerHeight / 2 - 25 : 0 
+  });
+  const isDraggingRef = useRef(false);
+  const dragStartRef = useRef({ x: 0, y: 0, startPos: { x: 0, y: 0 } });
 
   // Refs for direct DOM manipulation (Bypassing React cycle)
   const drawerRef = useRef<HTMLDivElement>(null);
@@ -243,6 +249,14 @@ export const LiquidGlassDrawer: React.FC<LiquidGlassDrawerProps> = ({
   const displacementMapRef = useRef<SVGFEDisplacementMapElement>(null);
   const specularImageRef = useRef<SVGFEImageElement>(null);
   const specularAlphaRef = useRef<SVGFEFuncAElement>(null);
+
+  // Filter SVG elements for Box
+  const filterBlurBoxRef = useRef<SVGFEGaussianBlurElement>(null);
+  const displacementImageBoxRef = useRef<SVGFEImageElement>(null);
+  const displacementMapBoxRef = useRef<SVGFEDisplacementMapElement>(null);
+  const specularImageBoxRef = useRef<SVGFEImageElement>(null);
+  const specularAlphaBoxRef = useRef<SVGFEFuncAElement>(null);
+  const cloneInnerBoxRef = useRef<HTMLDivElement>(null);
 
   // Physics state
   const springs = useRef<PhysicsState>({
@@ -272,8 +286,39 @@ export const LiquidGlassDrawer: React.FC<LiquidGlassDrawerProps> = ({
     // Initial size after mount
     setTimeout(handleResize, 50); // slight delay to ensure layout is done
     window.addEventListener("resize", handleResize);
+    
+    // Set initial box pos accurately after mount
+    setBoxPos({
+      x: window.innerWidth / 2 - 25,
+      y: window.innerHeight / 2 - 25
+    });
+
     return () => window.removeEventListener("resize", handleResize);
   }, []);
+
+  const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    isDraggingRef.current = true;
+    dragStartRef.current = { x: e.clientX, y: e.clientY, startPos: boxPos };
+    e.currentTarget.setPointerCapture(e.pointerId);
+  };
+
+  const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!isDraggingRef.current) return;
+    const dx = e.clientX - dragStartRef.current.x;
+    const dy = e.clientY - dragStartRef.current.y;
+    const newX = dragStartRef.current.startPos.x + dx;
+    const newY = dragStartRef.current.startPos.y + dy;
+    setBoxPos({ x: newX, y: newY });
+    
+    if (!useBackdrop && cloneInnerBoxRef.current) {
+      cloneInnerBoxRef.current.style.transform = `translate(${-newX}px, ${-newY}px)`;
+    }
+  };
+
+  const handlePointerUp = (e: React.PointerEvent<HTMLDivElement>) => {
+    isDraggingRef.current = false;
+    e.currentTarget.releasePointerCapture(e.pointerId);
+  };
 
   // Sync Clone Fallback translation
   useEffect(() => {
@@ -283,7 +328,12 @@ export const LiquidGlassDrawer: React.FC<LiquidGlassDrawerProps> = ({
       cloneInnerRef.current.style.height = `${window.innerHeight}px`;
       cloneInnerRef.current.style.transform = `translate(${-rect.left}px, ${-rect.top}px)`;
     }
-  }, [useBackdrop, drawerSize, isOpen]);
+    if (!useBackdrop && cloneInnerBoxRef.current) {
+      cloneInnerBoxRef.current.style.width = `${window.innerWidth}px`;
+      cloneInnerBoxRef.current.style.height = `${window.innerHeight}px`;
+      cloneInnerBoxRef.current.style.transform = `translate(${-boxPos.x}px, ${-boxPos.y}px)`;
+    }
+  }, [useBackdrop, drawerSize, isOpen, boxPos]);
 
   // Heavy Computation Isolation bounded by parameters
   useEffect(() => {
@@ -319,6 +369,21 @@ export const LiquidGlassDrawer: React.FC<LiquidGlassDrawerProps> = ({
     displacementMapRef.current?.setAttribute("scale", String(maxDisp * refractionScale));
     specularAlphaRef.current?.setAttribute("slope", String(specularOpacity));
     filterBlurRef.current?.setAttribute("stdDeviation", String(blur));
+
+    // --- Box Computation ---
+    const boxSize = 50;
+    const boxRadius = Math.min(drawerRadius, 25);
+    const dispDataBox = calculateDisplacementMap2D(
+      boxSize, boxSize, boxSize, boxSize, 
+      boxRadius, bezelWidth, maxDisp || 1, precomputed
+    );
+    const specDataBox = calculateSpecularHighlight(boxSize, boxSize, boxRadius);
+    
+    displacementImageBoxRef.current?.setAttribute("href", imageDataToDataURL(dispDataBox));
+    specularImageBoxRef.current?.setAttribute("href", imageDataToDataURL(specDataBox));
+    displacementMapBoxRef.current?.setAttribute("scale", String(maxDisp * refractionScale));
+    specularAlphaBoxRef.current?.setAttribute("slope", String(specularOpacity));
+    filterBlurBoxRef.current?.setAttribute("stdDeviation", String(blur));
 
   }, [surfaceType, bezelWidth, drawerRadius, glassThickness, refractionScale, specularOpacity, blur, drawerSize]);
 
@@ -414,12 +479,47 @@ export const LiquidGlassDrawer: React.FC<LiquidGlassDrawerProps> = ({
             </feComponentTransfer>
             <feBlend in="specular_faded" in2="displaced_saturated" mode="screen" />
           </filter>
+          <filter id="liquidGlassFilterBox" x="-50%" y="-50%" width="200%" height="200%" colorInterpolationFilters="sRGB">
+            <feGaussianBlur ref={filterBlurBoxRef} in="SourceGraphic" stdDeviation={blur} result="blurred" />
+            <feImage ref={displacementImageBoxRef} href="" x="0" y="0" width="50" height="50" result="displacement_map" preserveAspectRatio="none" />
+            <feDisplacementMap ref={displacementMapBoxRef} in="blurred" in2="displacement_map" scale={50} xChannelSelector="R" yChannelSelector="G" result="displaced" />
+            <feColorMatrix in="displaced" type="saturate" values="1.3" result="displaced_saturated" />
+            <feImage ref={specularImageBoxRef} href="" x="0" y="0" width="50" height="50" result="specular_layer" preserveAspectRatio="none" />
+            <feComponentTransfer in="specular_layer" result="specular_faded">
+              <feFuncA ref={specularAlphaBoxRef} type="linear" slope={specularOpacity} />
+            </feComponentTransfer>
+            <feBlend in="specular_faded" in2="displaced_saturated" mode="screen" />
+          </filter>
         </defs>
       </svg>
 
       <div className="drawer-inner-shadow" />
+    </div>
 
-
+    {/* Draggable 50x50 box */}
+    <div
+      className={`draggable-liquid-box ${useBackdrop ? "use-backdrop-filter" : ""}`}
+      style={{
+        position: "fixed",
+        left: boxPos.x,
+        top: boxPos.y,
+        width: 100,
+        height: 100,
+        borderRadius: Math.min(drawerRadius, 50),
+        zIndex: 2500,
+        cursor: isDraggingRef.current ? "grabbing" : "grab",
+      }}
+      onPointerDown={handlePointerDown}
+      onPointerMove={handlePointerMove}
+      onPointerUp={handlePointerUp}
+      onPointerCancel={handlePointerUp}
+    >
+      <div className="box-content-clone">
+        <div ref={cloneInnerBoxRef} className="box-content-inner">
+          {children}
+        </div>
+      </div>
+      <div className="drawer-inner-shadow" />
     </div>
 
     {/* Live Parameter Controls */}
