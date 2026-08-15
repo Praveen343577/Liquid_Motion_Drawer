@@ -97,19 +97,23 @@
 /* Controls inside drawer */
 .controls-panel {
     position: fixed;
-    bottom: 2rem;
-    right: 2rem;
-    width: 380px;
+    bottom: 20px;
+    right: 20px;
+    width: 600px;
     z-index: 2000;
     background: rgba(255, 255, 255, 0.25);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
     border-radius: 12px;
     border: 1px solid rgba(255,255,255,0.3);
-    padding: 1.5rem;
-    color: #764ba2;
+    padding: 1rem 1.5rem;
+    color: #333;
     font-weight: bold;
     box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    column-gap: 2rem;
+    row-gap: 0.5rem;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -120,10 +124,11 @@
 }
 
 .controls-header {
+    grid-column: 1 / -1;
     display: flex;
     align-items: center;
     gap: 1rem;
-    margin-bottom: 1.5rem;
+    margin-bottom: 0.5rem;
 }
 
 .controls-header-text {
@@ -143,8 +148,7 @@
 .control-row {
     display: flex;
     align-items: center;
-    gap: 1rem;
-    margin-bottom: 1rem;
+    gap: 0.5rem;
 }
 
 .control-row:last-child {
@@ -152,20 +156,20 @@
 }
 
 .control-label {
-    width: 120px;
+    width: 100px;
     text-transform: uppercase;
     letter-spacing: 0.08em;
-    font-size: 11px;
+    font-size: 10px;
     font-weight: 700;
     opacity: 0.9;
     flex-shrink: 0;
 }
 
 .control-value {
-    width: 40px;
+    width: 30px;
     text-align: right;
     font-family: "SF Mono", Monaco, "Cascadia Code", monospace;
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 700;
     opacity: 0.9;
     font-variant-numeric: tabular-nums;
@@ -214,12 +218,12 @@
 }
 
 .surface-btn {
-    padding: 0.5rem 1rem;
+    padding: 0.4rem 0.8rem;
     border: 1px solid rgba(17, 24, 39, 0.2);
     border-radius: 8px;
     background: transparent;
-    color: #764ba2;
-    font-size: 12px;
+    color: #333;
+    font-size: 11px;
     font-weight: 700;
     cursor: pointer;
     transition: all 0.15s ease;
