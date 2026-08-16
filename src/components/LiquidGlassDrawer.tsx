@@ -74,7 +74,7 @@ class Spring {
   }
 }
 
-function calculateDisplacementMap1D(glassThickness: number, bezelWidth: number, surfaceFn: (x: number) => number, refractiveIndex: number, samples = 128) {
+function calculateDisplacementMap1D(glassThickness: number, bezelWidth: number, surfaceFn: (x: number) => number, refractiveIndex: number, samples = 1024) {
   const eta = 1 / refractiveIndex;
   function refract(normalX: number, normalY: number) {
     const dot = normalY;
@@ -152,11 +152,19 @@ function calculateDisplacementMap2D(cW: number, cH: number, oW: number, oH: numb
       const idx = ((oy + y1) * cW + ox + x1) * 4;
       const { dFS, nx, ny } = getSDF(x1, y1, oW, oH, radius);
 
-      if (dFS >= -1 && dFS <= bezelWidth) {
-        const op = dFS < 0 ? 1 + dFS : 1;
+      const aa = typeof window !== 'undefined' ? (window.devicePixelRatio || 1) : 1;
+      if (dFS >= -aa && dFS <= bezelWidth) {
+        const op = dFS < 0 ? 1 + (dFS / aa) : 1;
         const bR = Math.max(0, dFS / bezelWidth);
-        const bI = Math.floor(bR * precomputed.length);
-        const dist = precomputed[Math.max(0, Math.min(bI, precomputed.length - 1))] || 0;
+        const bI_exact = bR * (precomputed.length - 1);
+        const bI_low = Math.floor(bI_exact);
+        const bI_high = Math.ceil(bI_exact);
+        const fraction = bI_exact - bI_low;
+        
+        const dist_low = precomputed[Math.max(0, Math.min(bI_low, precomputed.length - 1))] || 0;
+        const dist_high = precomputed[Math.max(0, Math.min(bI_high, precomputed.length - 1))] || 0;
+        const dist = dist_low * (1 - fraction) + dist_high * fraction;
+
         const dX = maxDisp > 0 ? (nx * dist) / maxDisp : 0;
         const dY = maxDisp > 0 ? (ny * dist) / maxDisp : 0;
         
@@ -168,18 +176,19 @@ function calculateDisplacementMap2D(cW: number, cH: number, oW: number, oH: numb
   return imageData;
 }
 
-function calculateSpecularHighlight(oW: number, oH: number, radius: number) {
+function calculateSpecularHighlight(oW: number, oH: number, radius: number, dpr = 1) {
   const imageData = new ImageData(oW, oH);
   const sv = [Math.cos(Math.PI / 3), Math.sin(Math.PI / 3)];
-  const st = 1.5;
+  const st = 1.5 * dpr;
+  const aa = 1 * dpr; // antialiasing bleed
 
   for (let y1 = 0; y1 < oH; y1++) {
     for (let x1 = 0; x1 < oW; x1++) {
       const idx = (y1 * oW + x1) * 4;
       const { dFS, nx, ny } = getSDF(x1, y1, oW, oH, radius);
 
-      if (dFS >= -1 && dFS <= st) {
-        const op = dFS < 0 ? 1 + dFS : 1;
+      if (dFS >= -aa && dFS <= st) {
+        const op = dFS < 0 ? 1 + (dFS / aa) : 1;
         const dot = Math.abs(-nx * sv[0] + ny * sv[1]);
         const eR = Math.max(0, dFS / st);
         const sharpFalloff = Math.sqrt(1 - (1 - eR) * (1 - eR));
@@ -344,21 +353,27 @@ export const LiquidGlassDrawer: React.FC<LiquidGlassDrawerProps> = ({
 
     const radius = drawerRadius;
 
+    const dpr = window.devicePixelRatio || 1;
+    const physW = Math.round(drawerSize.w * dpr);
+    const physH = Math.round(drawerSize.h * dpr);
+    const physRadius = drawerRadius * dpr;
+    const physBezelWidth = bezelWidth * dpr;
+
     const precomputed = calculateDisplacementMap1D(
       glassThickness,
-      bezelWidth,
+      bezelWidth, // keep logical for lookup scaling
       surfaceFn,
       DEFAULTS.refractiveIndex
     );
     const maxDisp = Math.max(...precomputed.map(Math.abs));
 
     const dispData = calculateDisplacementMap2D(
-      drawerSize.w, drawerSize.h, 
-      drawerSize.w, drawerSize.h, 
-      radius, bezelWidth, maxDisp || 1, precomputed
+      physW, physH, 
+      physW, physH, 
+      physRadius, physBezelWidth, maxDisp || 1, precomputed
     );
     
-    const specData = calculateSpecularHighlight(drawerSize.w, drawerSize.h, radius);
+    const specData = calculateSpecularHighlight(physW, physH, physRadius, dpr);
 
     const dispUrl = imageDataToDataURL(dispData);
     const specUrl = imageDataToDataURL(specData);
@@ -373,11 +388,14 @@ export const LiquidGlassDrawer: React.FC<LiquidGlassDrawerProps> = ({
     // --- Box Computation ---
     const boxSize = 200;
     const boxRadius = Math.min(drawerRadius, 100);
+    const physBoxSize = Math.round(boxSize * dpr);
+    const physBoxRadius = boxRadius * dpr;
+    
     const dispDataBox = calculateDisplacementMap2D(
-      boxSize, boxSize, boxSize, boxSize, 
-      boxRadius, bezelWidth, maxDisp || 1, precomputed
+      physBoxSize, physBoxSize, physBoxSize, physBoxSize, 
+      physBoxRadius, physBezelWidth, maxDisp || 1, precomputed
     );
-    const specDataBox = calculateSpecularHighlight(boxSize, boxSize, boxRadius);
+    const specDataBox = calculateSpecularHighlight(physBoxSize, physBoxSize, physBoxRadius, dpr);
     
     displacementImageBoxRef.current?.setAttribute("href", imageDataToDataURL(dispDataBox));
     specularImageBoxRef.current?.setAttribute("href", imageDataToDataURL(specDataBox));
