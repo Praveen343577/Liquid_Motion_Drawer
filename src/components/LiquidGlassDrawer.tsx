@@ -351,7 +351,6 @@ export const LiquidGlassDrawer: React.FC<LiquidGlassDrawerProps> = ({
     const surfaceFn = SurfaceEquations[surfaceType];
     if (!surfaceFn) return;
 
-    const radius = drawerRadius;
 
     const dpr = window.devicePixelRatio || 1;
     const physW = Math.round(drawerSize.w * dpr);
