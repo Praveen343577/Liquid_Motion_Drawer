@@ -26,6 +26,7 @@ const DEFAULTS = {
   refractionScale: 1.5,
   specularOpacity: 1,
   blur: 0.5,
+  chromaticAberration: 5,
 };
 
 const SURFACE_TYPES = [
@@ -239,6 +240,7 @@ export const LiquidGlassDrawer: React.FC<LiquidGlassDrawerProps> = ({
   const [refractionScale, setRefractionScale] = useState(DEFAULTS.refractionScale);
   const [specularOpacity, setSpecularOpacity] = useState(DEFAULTS.specularOpacity);
   const [blur, setBlur] = useState(DEFAULTS.blur);
+  const [chromaticAberration, setChromaticAberration] = useState(DEFAULTS.chromaticAberration);
 
   const [drawerSize, setDrawerSize] = useState({ w: 0, h: 0 });
   const [boxPos, setBoxPos] = useState({ 
@@ -266,6 +268,11 @@ export const LiquidGlassDrawer: React.FC<LiquidGlassDrawerProps> = ({
   const specularImageBoxRef = useRef<SVGFEImageElement>(null);
   const specularAlphaBoxRef = useRef<SVGFEFuncAElement>(null);
   const cloneInnerBoxRef = useRef<HTMLDivElement>(null);
+
+  const filterOffsetRRef = useRef<SVGFEOffsetElement>(null);
+  const filterOffsetBRef = useRef<SVGFEOffsetElement>(null);
+  const filterOffsetRBoxRef = useRef<SVGFEOffsetElement>(null);
+  const filterOffsetBBoxRef = useRef<SVGFEOffsetElement>(null);
 
   // Physics state
   const springs = useRef<PhysicsState>({
@@ -383,6 +390,8 @@ export const LiquidGlassDrawer: React.FC<LiquidGlassDrawerProps> = ({
     displacementMapRef.current?.setAttribute("scale", String(maxDisp * refractionScale));
     specularAlphaRef.current?.setAttribute("slope", String(specularOpacity));
     filterBlurRef.current?.setAttribute("stdDeviation", String(blur));
+    filterOffsetRRef.current?.setAttribute("dx", String(chromaticAberration));
+    filterOffsetBRef.current?.setAttribute("dx", String(-chromaticAberration));
 
     // --- Box Computation ---
     const boxSize = 200;
@@ -401,8 +410,10 @@ export const LiquidGlassDrawer: React.FC<LiquidGlassDrawerProps> = ({
     displacementMapBoxRef.current?.setAttribute("scale", String(maxDisp * refractionScale));
     specularAlphaBoxRef.current?.setAttribute("slope", String(specularOpacity));
     filterBlurBoxRef.current?.setAttribute("stdDeviation", String(blur));
+    filterOffsetRBoxRef.current?.setAttribute("dx", String(chromaticAberration));
+    filterOffsetBBoxRef.current?.setAttribute("dx", String(-chromaticAberration));
 
-  }, [surfaceType, bezelWidth, drawerRadius, glassThickness, refractionScale, specularOpacity, blur, drawerSize]);
+  }, [surfaceType, bezelWidth, drawerRadius, glassThickness, refractionScale, specularOpacity, blur, chromaticAberration, drawerSize]);
 
   // Spring Animation Loop
   useEffect(() => {
@@ -489,7 +500,16 @@ export const LiquidGlassDrawer: React.FC<LiquidGlassDrawerProps> = ({
             <feGaussianBlur ref={filterBlurRef} in="SourceGraphic" stdDeviation={blur} result="blurred" />
             <feImage ref={displacementImageRef} href="" x="0" y="0" width={drawerSize.w} height={drawerSize.h} result="displacement_map" preserveAspectRatio="none" />
             <feDisplacementMap ref={displacementMapRef} in="blurred" in2="displacement_map" scale={50} xChannelSelector="R" yChannelSelector="G" result="displaced" />
-            <feColorMatrix in="displaced" type="saturate" values="1.3" result="displaced_saturated" />
+            
+            <feColorMatrix in="displaced" type="matrix" values="1 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 1 0" result="red_layer" />
+            <feColorMatrix in="displaced" type="matrix" values="0 0 0 0 0  0 1 0 0 0  0 0 0 0 0  0 0 0 1 0" result="green_layer" />
+            <feColorMatrix in="displaced" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 1 0 0  0 0 0 1 0" result="blue_layer" />
+            <feOffset ref={filterOffsetRRef} in="red_layer" dx={chromaticAberration} dy="0" result="red_shifted" />
+            <feOffset ref={filterOffsetBRef} in="blue_layer" dx={-chromaticAberration} dy="0" result="blue_shifted" />
+            <feBlend in="red_shifted" in2="green_layer" mode="screen" result="rg" />
+            <feBlend in="rg" in2="blue_shifted" mode="screen" result="displaced_aberrated" />
+            
+            <feColorMatrix in="displaced_aberrated" type="saturate" values="1.3" result="displaced_saturated" />
             <feImage ref={specularImageRef} href="" x="0" y="0" width={drawerSize.w} height={drawerSize.h} result="specular_layer" preserveAspectRatio="none" />
             <feComponentTransfer in="specular_layer" result="specular_faded">
               <feFuncA ref={specularAlphaRef} type="linear" slope={specularOpacity} />
@@ -500,7 +520,16 @@ export const LiquidGlassDrawer: React.FC<LiquidGlassDrawerProps> = ({
             <feGaussianBlur ref={filterBlurBoxRef} in="SourceGraphic" stdDeviation={blur} result="blurred" />
             <feImage ref={displacementImageBoxRef} href="" x="0" y="0" width="200" height="200" result="displacement_map" preserveAspectRatio="none" />
             <feDisplacementMap ref={displacementMapBoxRef} in="blurred" in2="displacement_map" scale={50} xChannelSelector="R" yChannelSelector="G" result="displaced" />
-            <feColorMatrix in="displaced" type="saturate" values="1.3" result="displaced_saturated" />
+            
+            <feColorMatrix in="displaced" type="matrix" values="1 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 1 0" result="red_layer_box" />
+            <feColorMatrix in="displaced" type="matrix" values="0 0 0 0 0  0 1 0 0 0  0 0 0 0 0  0 0 0 1 0" result="green_layer_box" />
+            <feColorMatrix in="displaced" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 1 0 0  0 0 0 1 0" result="blue_layer_box" />
+            <feOffset ref={filterOffsetRBoxRef} in="red_layer_box" dx={chromaticAberration} dy="0" result="red_shifted_box" />
+            <feOffset ref={filterOffsetBBoxRef} in="blue_layer_box" dx={-chromaticAberration} dy="0" result="blue_shifted_box" />
+            <feBlend in="red_shifted_box" in2="green_layer_box" mode="screen" result="rg_box" />
+            <feBlend in="rg_box" in2="blue_shifted_box" mode="screen" result="displaced_aberrated" />
+
+            <feColorMatrix in="displaced_aberrated" type="saturate" values="1.3" result="displaced_saturated" />
             <feImage ref={specularImageBoxRef} href="" x="0" y="0" width="200" height="200" result="specular_layer" preserveAspectRatio="none" />
             <feComponentTransfer in="specular_layer" result="specular_faded">
               <feFuncA ref={specularAlphaBoxRef} type="linear" slope={specularOpacity} />
@@ -610,6 +639,11 @@ export const LiquidGlassDrawer: React.FC<LiquidGlassDrawerProps> = ({
             <label className="control-label">Blur</label>
             <span className="control-value">{blur.toFixed(1)}</span>
             <input type="range" className="control-slider" min={0} max={10} step={0.1} value={blur} onChange={(e) => setBlur(Number(e.target.value))} />
+          </div>
+          <div className="control-row">
+            <label className="control-label">Chromatic Aberration</label>
+            <span className="control-value">{chromaticAberration.toFixed(1)}</span>
+            <input type="range" className="control-slider" min={0} max={50} step={1} value={chromaticAberration} onChange={(e) => setChromaticAberration(Number(e.target.value))} />
           </div>
         </div>
     </>
