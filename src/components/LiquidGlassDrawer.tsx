@@ -388,9 +388,10 @@ export const LiquidGlassDrawer: React.FC<LiquidGlassDrawerProps> = ({
     specularImageRef.current?.setAttribute("href", specUrl);
     
     const baseScale = maxDisp * refractionScale;
-    displacementMapRRef.current?.setAttribute("scale", String(baseScale + chromaticAberration));
+    const caFactor = chromaticAberration * 0.05; // Make the effect proportional and pronounced
+    displacementMapRRef.current?.setAttribute("scale", String(baseScale * (1 + caFactor)));
     displacementMapGRef.current?.setAttribute("scale", String(baseScale));
-    displacementMapBRef.current?.setAttribute("scale", String(baseScale - chromaticAberration));
+    displacementMapBRef.current?.setAttribute("scale", String(baseScale * (1 - caFactor)));
 
     specularAlphaRef.current?.setAttribute("slope", String(specularOpacity));
     filterBlurRef.current?.setAttribute("stdDeviation", String(blur));
@@ -410,9 +411,9 @@ export const LiquidGlassDrawer: React.FC<LiquidGlassDrawerProps> = ({
     displacementImageBoxRef.current?.setAttribute("href", imageDataToDataURL(dispDataBox));
     specularImageBoxRef.current?.setAttribute("href", imageDataToDataURL(specDataBox));
     
-    displacementMapRBoxRef.current?.setAttribute("scale", String(baseScale + chromaticAberration));
+    displacementMapRBoxRef.current?.setAttribute("scale", String(baseScale * (1 + caFactor)));
     displacementMapGBoxRef.current?.setAttribute("scale", String(baseScale));
-    displacementMapBBoxRef.current?.setAttribute("scale", String(baseScale - chromaticAberration));
+    displacementMapBBoxRef.current?.setAttribute("scale", String(baseScale * (1 - caFactor)));
     
     specularAlphaBoxRef.current?.setAttribute("slope", String(specularOpacity));
     filterBlurBoxRef.current?.setAttribute("stdDeviation", String(blur));
@@ -512,8 +513,8 @@ export const LiquidGlassDrawer: React.FC<LiquidGlassDrawerProps> = ({
             <feDisplacementMap ref={displacementMapGRef} in="green_layer" in2="displacement_map" scale={50} xChannelSelector="R" yChannelSelector="G" result="green_displaced" />
             <feDisplacementMap ref={displacementMapBRef} in="blue_layer" in2="displacement_map" scale={50} xChannelSelector="R" yChannelSelector="G" result="blue_displaced" />
 
-            <feBlend in="red_displaced" in2="green_displaced" mode="screen" result="rg" />
-            <feBlend in="rg" in2="blue_displaced" mode="screen" result="displaced_aberrated" />
+            <feBlend in="red_displaced" in2="green_displaced" mode="lighten" result="rg" />
+            <feBlend in="rg" in2="blue_displaced" mode="lighten" result="displaced_aberrated" />
             
             <feColorMatrix in="displaced_aberrated" type="saturate" values="1.3" result="displaced_saturated" />
             <feImage ref={specularImageRef} href="" x="0" y="0" width={drawerSize.w} height={drawerSize.h} result="specular_layer" preserveAspectRatio="none" />
@@ -534,8 +535,8 @@ export const LiquidGlassDrawer: React.FC<LiquidGlassDrawerProps> = ({
             <feDisplacementMap ref={displacementMapGBoxRef} in="green_layer_box" in2="displacement_map" scale={50} xChannelSelector="R" yChannelSelector="G" result="green_displaced_box" />
             <feDisplacementMap ref={displacementMapBBoxRef} in="blue_layer_box" in2="displacement_map" scale={50} xChannelSelector="R" yChannelSelector="G" result="blue_displaced_box" />
 
-            <feBlend in="red_displaced_box" in2="green_displaced_box" mode="screen" result="rg_box" />
-            <feBlend in="rg_box" in2="blue_displaced_box" mode="screen" result="displaced_aberrated" />
+            <feBlend in="red_displaced_box" in2="green_displaced_box" mode="lighten" result="rg_box" />
+            <feBlend in="rg_box" in2="blue_displaced_box" mode="lighten" result="displaced_aberrated" />
 
             <feColorMatrix in="displaced_aberrated" type="saturate" values="1.3" result="displaced_saturated" />
             <feImage ref={specularImageBoxRef} href="" x="0" y="0" width="200" height="200" result="specular_layer" preserveAspectRatio="none" />
