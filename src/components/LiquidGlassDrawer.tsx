@@ -32,16 +32,25 @@ const DEFAULTS = {
 const SURFACE_TYPES = [
   { key: "convex_squircle", label: "Convex Squircle" },
   { key: "convex_circle", label: "Convex Circle" },
-  { key: "concave", label: "Concave" },
-  { key: "lip", label: "Lip" },
+  { key: "concave_1", label: "Concave 1" },
+  { key: "concave_2", label: "Concave 2" },
+  { key: "lip_1", label: "Lip 1" },
+  { key: "lip_2", label: "Lip 2" },
 ];
 
 // --- Verbatim Logic ---
 const SurfaceEquations: Record<string, (x: number) => number> = {
   convex_circle: (x) => Math.sqrt(1 - Math.pow(1 - x, 2)),
   convex_squircle: (x) => Math.pow(1 - Math.pow(1 - x, 4), 1 / 4),
-  concave: (x) => (1 - Math.cos(x * Math.PI)) / 2,
-  lip: (x) => {
+  concave_1: (x) => 1 - Math.sqrt(1 - Math.pow(x, 2)),
+  concave_2: (x) => (1 - Math.cos(x * Math.PI)) / 2,
+  lip_1: (x) => {
+    const convex = Math.pow(1 - Math.pow(1 - Math.min(x * 2, 1), 4), 1 / 4);
+    const concave = 1 - Math.sqrt(1 - Math.pow(1 - x, 2)) + 0.1;
+    const smootherstep = 6 * Math.pow(x, 5) - 15 * Math.pow(x, 4) + 10 * Math.pow(x, 3);
+    return convex * (1 - smootherstep) + concave * smootherstep;
+  },
+  lip_2: (x) => {
     if (x < 0.35) {
       return (1 - Math.cos((x / 0.35) * Math.PI)) * 0.15;
     } else {
