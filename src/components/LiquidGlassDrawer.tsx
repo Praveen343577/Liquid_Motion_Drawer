@@ -40,12 +40,13 @@ const SURFACE_TYPES = [
 const SurfaceEquations: Record<string, (x: number) => number> = {
   convex_circle: (x) => Math.sqrt(1 - Math.pow(1 - x, 2)),
   convex_squircle: (x) => Math.pow(1 - Math.pow(1 - x, 4), 1 / 4),
-  concave: (x) => 1 - Math.sqrt(1 - Math.pow(x, 2)),
+  concave: (x) => (1 - Math.cos(x * Math.PI)) / 2,
   lip: (x) => {
-    const convex = Math.pow(1 - Math.pow(1 - Math.min(x * 2, 1), 4), 1 / 4);
-    const concave = 1 - Math.sqrt(1 - Math.pow(1 - x, 2)) + 0.1;
-    const smootherstep = 6 * Math.pow(x, 5) - 15 * Math.pow(x, 4) + 10 * Math.pow(x, 3);
-    return convex * (1 - smootherstep) + concave * smootherstep;
+    if (x < 0.35) {
+      return (1 - Math.cos((x / 0.35) * Math.PI)) * 0.15;
+    } else {
+      return 0.3 + (1 - Math.cos(((x - 0.35) / 0.65) * Math.PI)) * 0.35;
+    }
   },
 };
 
@@ -385,7 +386,11 @@ export const LiquidGlassDrawer: React.FC<LiquidGlassDrawerProps> = ({
 
     // Update filter elements via ref to avoid state churn
     displacementImageRef.current?.setAttribute("href", dispUrl);
+    displacementImageRef.current?.setAttribute("width", String(drawerSize.w));
+    displacementImageRef.current?.setAttribute("height", String(drawerSize.h));
     specularImageRef.current?.setAttribute("href", specUrl);
+    specularImageRef.current?.setAttribute("width", String(drawerSize.w));
+    specularImageRef.current?.setAttribute("height", String(drawerSize.h));
     
     const baseScale = maxDisp * refractionScale;
     const caFactor = chromaticAberration * 0.05; // Make the effect proportional and pronounced
@@ -409,7 +414,11 @@ export const LiquidGlassDrawer: React.FC<LiquidGlassDrawerProps> = ({
     const specDataBox = calculateSpecularHighlight(physBoxSize, physBoxSize, physBoxRadius, dpr);
     
     displacementImageBoxRef.current?.setAttribute("href", imageDataToDataURL(dispDataBox));
+    displacementImageBoxRef.current?.setAttribute("width", String(boxSize));
+    displacementImageBoxRef.current?.setAttribute("height", String(boxSize));
     specularImageBoxRef.current?.setAttribute("href", imageDataToDataURL(specDataBox));
+    specularImageBoxRef.current?.setAttribute("width", String(boxSize));
+    specularImageBoxRef.current?.setAttribute("height", String(boxSize));
     
     displacementMapRBoxRef.current?.setAttribute("scale", String(baseScale * (1 + caFactor)));
     displacementMapGBoxRef.current?.setAttribute("scale", String(baseScale));
@@ -501,9 +510,12 @@ export const LiquidGlassDrawer: React.FC<LiquidGlassDrawerProps> = ({
 
       <svg className="drawer-filter-svg" aria-hidden="true" style={{ position: "absolute", width: 0, height: 0 }}>
         <defs>
-          <filter id="liquidGlassFilterDrawer" x="-50%" y="-50%" width="200%" height="200%" colorInterpolationFilters="sRGB">
+          <filter id="liquidGlassFilterDrawer" x="0" y="0" width={drawerSize.w} height={drawerSize.h} filterUnits="userSpaceOnUse" primitiveUnits="userSpaceOnUse" colorInterpolationFilters="sRGB">
             <feGaussianBlur ref={filterBlurRef} in="SourceGraphic" stdDeviation={blur} result="blurred" />
-            <feImage ref={displacementImageRef} href="" x="0" y="0" width={drawerSize.w} height={drawerSize.h} result="displacement_map" preserveAspectRatio="none" />
+            <feImage ref={displacementImageRef} href="" x="0" y="0" width={drawerSize.w} height={drawerSize.h} result="raw_displacement_map" preserveAspectRatio="none" />
+            
+            {/* Blur the displacement map slightly to eliminate 8-bit color quantization stepping */}
+            <feGaussianBlur in="raw_displacement_map" stdDeviation="1.5" result="displacement_map" />
             
             <feColorMatrix in="blurred" type="matrix" values="1 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 1 0" result="red_layer" />
             <feColorMatrix in="blurred" type="matrix" values="0 0 0 0 0  0 1 0 0 0  0 0 0 0 0  0 0 0 1 0" result="green_layer" />
@@ -523,27 +535,29 @@ export const LiquidGlassDrawer: React.FC<LiquidGlassDrawerProps> = ({
             </feComponentTransfer>
             <feBlend in="specular_faded" in2="displaced_saturated" mode="screen" />
           </filter>
-          <filter id="liquidGlassFilterBox" x="-50%" y="-50%" width="200%" height="200%" colorInterpolationFilters="sRGB">
+          <filter id="liquidGlassFilterBox" x="0" y="0" width="200" height="200" filterUnits="userSpaceOnUse" primitiveUnits="userSpaceOnUse" colorInterpolationFilters="sRGB">
             <feGaussianBlur ref={filterBlurBoxRef} in="SourceGraphic" stdDeviation={blur} result="blurred" />
-            <feImage ref={displacementImageBoxRef} href="" x="0" y="0" width="200" height="200" result="displacement_map" preserveAspectRatio="none" />
+            <feImage ref={displacementImageBoxRef} href="" x="0" y="0" width="200" height="200" result="raw_displacement_map_box" preserveAspectRatio="none" />
+            
+            <feGaussianBlur in="raw_displacement_map_box" stdDeviation="1.5" result="displacement_map_box" />
             
             <feColorMatrix in="blurred" type="matrix" values="1 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 1 0" result="red_layer_box" />
             <feColorMatrix in="blurred" type="matrix" values="0 0 0 0 0  0 1 0 0 0  0 0 0 0 0  0 0 0 1 0" result="green_layer_box" />
             <feColorMatrix in="blurred" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 1 0 0  0 0 0 1 0" result="blue_layer_box" />
             
-            <feDisplacementMap ref={displacementMapRBoxRef} in="red_layer_box" in2="displacement_map" scale={50} xChannelSelector="R" yChannelSelector="G" result="red_displaced_box" />
-            <feDisplacementMap ref={displacementMapGBoxRef} in="green_layer_box" in2="displacement_map" scale={50} xChannelSelector="R" yChannelSelector="G" result="green_displaced_box" />
-            <feDisplacementMap ref={displacementMapBBoxRef} in="blue_layer_box" in2="displacement_map" scale={50} xChannelSelector="R" yChannelSelector="G" result="blue_displaced_box" />
+            <feDisplacementMap ref={displacementMapRBoxRef} in="red_layer_box" in2="displacement_map_box" scale={50} xChannelSelector="R" yChannelSelector="G" result="red_displaced_box" />
+            <feDisplacementMap ref={displacementMapGBoxRef} in="green_layer_box" in2="displacement_map_box" scale={50} xChannelSelector="R" yChannelSelector="G" result="green_displaced_box" />
+            <feDisplacementMap ref={displacementMapBBoxRef} in="blue_layer_box" in2="displacement_map_box" scale={50} xChannelSelector="R" yChannelSelector="G" result="blue_displaced_box" />
 
             <feBlend in="red_displaced_box" in2="green_displaced_box" mode="lighten" result="rg_box" />
-            <feBlend in="rg_box" in2="blue_displaced_box" mode="lighten" result="displaced_aberrated" />
+            <feBlend in="rg_box" in2="blue_displaced_box" mode="lighten" result="displaced_aberrated_box" />
 
-            <feColorMatrix in="displaced_aberrated" type="saturate" values="1.3" result="displaced_saturated" />
-            <feImage ref={specularImageBoxRef} href="" x="0" y="0" width="200" height="200" result="specular_layer" preserveAspectRatio="none" />
-            <feComponentTransfer in="specular_layer" result="specular_faded">
+            <feColorMatrix in="displaced_aberrated_box" type="saturate" values="1.3" result="displaced_saturated_box" />
+            <feImage ref={specularImageBoxRef} href="" x="0" y="0" width="200" height="200" result="specular_layer_box" preserveAspectRatio="none" />
+            <feComponentTransfer in="specular_layer_box" result="specular_faded_box">
               <feFuncA ref={specularAlphaBoxRef} type="linear" slope={specularOpacity} />
             </feComponentTransfer>
-            <feBlend in="specular_faded" in2="displaced_saturated" mode="screen" />
+            <feBlend in="specular_faded_box" in2="displaced_saturated_box" mode="screen" />
           </filter>
         </defs>
       </svg>
