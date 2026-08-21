@@ -34,7 +34,7 @@ const SURFACE_TYPES = [
   { key: "convex_circle", label: "Convex Circle" },
   { key: "concave", label: "Concave" },
   { key: "lip", label: "Lip" },
-  { key: "ripple_caustic", label: "Ripple Caustic" },
+  { key: "ripple", label: "Ripple" },
 ];
 
 // --- Verbatim Logic ---
@@ -52,7 +52,7 @@ const SurfaceEquations: Record<string, (x: number) => number> = {
   // Sinusoidal ripple layered on a linear ramp, windowed by sin(πx) so both
   // endpoints land exactly at 0 and 1 with zero oscillation — C∞ smooth.
   // Creates alternating convex/concave micro-ridges → caustic light bands.
-  ripple_caustic: (x) => {
+  ripple: (x) => {
     const freq = 3;        // 3 full rings across the bezel
     const amplitude = 0.15; // crest height relative to total bezel
     const envelope = Math.sin(Math.PI * x); // fades to 0 at both edges
