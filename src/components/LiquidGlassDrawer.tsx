@@ -35,6 +35,7 @@ const SURFACE_TYPES = [
   { key: "concave", label: "Concave" },
   { key: "lip", label: "Lip" },
   { key: "ripple", label: "Ripple" },
+  { key: "ridge", label: "Ridge" },
 ];
 
 const SurfaceEquations: Record<string, (x: number) => number> = {
@@ -53,6 +54,17 @@ const SurfaceEquations: Record<string, (x: number) => number> = {
     const amplitude = 0.15;
     const envelope = Math.sin(Math.PI * x);
     return x + amplitude * Math.sin(2 * Math.PI * freq * x) * envelope;
+  },
+  // Logistic sigmoid: nearly flat at the rim and at the center, with all the
+  // height gain concentrated in one narrow band — a single prismatic ridge.
+  // Result: two clear zones on either side of a sharp refracting ring.
+  ridge: (x) => {
+    const k = 12;          // steepness — higher = narrower ridge
+    const center = 0.45;   // where the ridge sits (slightly inward)
+    const sigmoid = (t: number) => 1 / (1 + Math.exp(-k * (t - center)));
+    const lo = sigmoid(0);
+    const hi = sigmoid(1);
+    return (sigmoid(x) - lo) / (hi - lo); // normalize to [0, 1]
   },
 };
 
