@@ -18,7 +18,7 @@ interface PhysicsState {
 }
 
 const DEFAULTS = {
-  surfaceType: "convex_squircle",
+  surfaceType: "convex_circle_n",
   bezelWidth: 30,
   drawerRadius: 24,
   glassThickness: 150,
@@ -31,7 +31,8 @@ const DEFAULTS = {
 
 const SURFACE_TYPES = [
   { key: "convex_squircle", label: "Convex Squircle" },
-  { key: "convex_circle", label: "Convex Circle" },
+  { key: "convex_circle_n", label: "Convex Circle (Smooth)" },
+  { key: "convex_circle_o", label: "Convex Circle (Original)" },
   { key: "concave", label: "Concave" },
   { key: "lip", label: "Lip" },
   { key: "ripple", label: "Ripple" },
@@ -39,7 +40,8 @@ const SURFACE_TYPES = [
 ];
 
 const SurfaceEquations: Record<string, (x: number) => number> = {
-  convex_circle: (x) => 1 - Math.cos(x * Math.PI / 2),
+  convex_circle_o: (x) => Math.sqrt(1 - Math.pow(1 - x, 2)),
+  convex_circle_n: (x) => 1 - Math.cos(x * Math.PI / 2),
   convex_squircle: (x) => Math.pow(1 - Math.pow(1 - x, 4), 1 / 4),
   concave: (x) => (1 - Math.cos(x * Math.PI)) / 2,
   lip: (x) => {
