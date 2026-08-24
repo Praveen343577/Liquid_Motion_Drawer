@@ -39,7 +39,7 @@ const SURFACE_TYPES = [
 ];
 
 const SurfaceEquations: Record<string, (x: number) => number> = {
-  convex_circle: (x) => Math.sqrt(1 - Math.pow(1 - x, 2)),
+  convex_circle: (x) => 1 - Math.cos(x * Math.PI / 2),
   convex_squircle: (x) => Math.pow(1 - Math.pow(1 - x, 4), 1 / 4),
   concave: (x) => (1 - Math.cos(x * Math.PI)) / 2,
   lip: (x) => {
