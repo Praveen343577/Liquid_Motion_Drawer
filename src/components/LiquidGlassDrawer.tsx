@@ -18,7 +18,7 @@ interface PhysicsState {
 }
 
 const DEFAULTS = {
-  surfaceType: "convex_circle_n",
+  surfaceType: "convex_squircle",
   bezelWidth: 30,
   drawerRadius: 24,
   glassThickness: 150,
