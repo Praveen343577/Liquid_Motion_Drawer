@@ -683,7 +683,7 @@ export const LiquidGlassDrawer: React.FC<LiquidGlassDrawerProps> = ({
           <div className="control-row">
             <label className="control-label">Chromatic Aberration</label>
             <span className="control-value">{chromaticAberration.toFixed(1)}</span>
-            <input type="range" className="control-slider" min={0} max={50} step={1} value={chromaticAberration} onChange={(e) => setChromaticAberration(Number(e.target.value))} />
+            <input type="range" className="control-slider" min={0} max={20} step={1} value={chromaticAberration} onChange={(e) => setChromaticAberration(Number(e.target.value))} />
           </div>
         </div>
     </>
