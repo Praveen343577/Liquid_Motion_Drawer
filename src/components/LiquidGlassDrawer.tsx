@@ -45,8 +45,7 @@ const SurfaceEquations: Record<string, (x: number) => number> = {
   convex_circle_n: (x) => 1 - Math.cos(x * Math.PI / 2),
   convex_squircle: (x) => Math.pow(1 - Math.pow(1 - x, 4), 1 / 4),
   concave: (x) => (1 - Math.cos(x * Math.PI)) / 2,
-  // Trough/valley: rises at edge, dips deep inward, normals point inward → lines converge to center
-  concave_pinch: (x) => Math.pow(Math.sin(x * Math.PI), 0.6),
+  concave_pinch: (x) => Math.sin(x * Math.PI) * 0.18,
   lip: (x) => {
     if (x < 0.35) {
       return (1 - Math.cos((x / 0.35) * Math.PI)) * 0.15;
