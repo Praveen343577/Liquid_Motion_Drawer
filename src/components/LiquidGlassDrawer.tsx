@@ -716,7 +716,7 @@ export const LiquidGlassDrawer: React.FC<LiquidGlassDrawerProps> = ({
           <div className="control-row">
             <label className="control-label">Blur</label>
             <span className="control-value">{blur.toFixed(1)}</span>
-            <input type="range" className="control-slider" min={0} max={10} step={0.1} value={blur} onChange={(e) => setBlur(Number(e.target.value))} />
+            <input type="range" className="control-slider" min={0} max={20} step={0.1} value={blur} onChange={(e) => setBlur(Number(e.target.value))} />
           </div>
           <div className="control-row">
             <label className="control-label">Chromatic Aberration</label>
