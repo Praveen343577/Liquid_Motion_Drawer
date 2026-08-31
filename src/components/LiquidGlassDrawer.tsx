@@ -31,6 +31,7 @@ const DEFAULTS = {
 
 const SURFACE_TYPES = [
   { key: "convex_squircle", label: "Convex Squircle" },
+  { key: "convex_squircle_smooth", label: "Convex Squircle (Smooth)" },
   { key: "convex_circle_n", label: "Convex Circle (Smooth)" },
   { key: "convex_circle_o", label: "Convex Circle (Original)" },
   { key: "concave", label: "Concave" },
@@ -40,10 +41,29 @@ const SURFACE_TYPES = [
   { key: "ridge", label: "Ridge" },
 ];
 
+// Per-surface overrides for 1D sample count and displacement map blur radius.
+// Higher sample count reduces aliasing in steep-gradient profiles.
+const SURFACE_SAMPLES: Record<string, number> = {
+  convex_squircle_smooth: 4096,
+};
+const SURFACE_DISP_BLUR: Record<string, number> = {
+  convex_squircle_smooth: 3.0,
+};
+
 const SurfaceEquations: Record<string, (x: number) => number> = {
   convex_circle_o: (x) => Math.sqrt(1 - Math.pow(1 - x, 2)),
   convex_circle_n: (x) => 1 - Math.cos(x * Math.PI / 2),
   convex_squircle: (x) => Math.pow(1 - Math.pow(1 - x, 4), 1 / 4),
+  // Smooth variant: apply a hermite (smoothstep) pre-warp to x before the
+  // squircle formula. This stretches out the steep derivative transitions
+  // at x≈0 and x≈1, converting abrupt slope cliffs into gentle curves and
+  // eliminating the pixelated banding in the displacement map.
+  // The optical squircle shape is preserved — only the *gradient* is softened.
+  convex_squircle_smooth: (x) => {
+    // Hermite smoothstep: maps x -> 3x²-2x³  (C1 continuous, flat endpoints)
+    const xs = x * x * (3 - 2 * x);
+    return Math.pow(1 - Math.pow(1 - xs, 4), 1 / 4);
+  },
   concave: (x) => (1 - Math.cos(x * Math.PI)) / 2,
   concave_pinch: (x) => Math.sin(x * Math.PI) * 0.18,
   lip: (x) => {
@@ -377,6 +397,9 @@ export const LiquidGlassDrawer: React.FC<LiquidGlassDrawerProps> = ({
     const surfaceFn = SurfaceEquations[surfaceType];
     if (!surfaceFn) return;
 
+    // Per-surface quality overrides
+    const samples = SURFACE_SAMPLES[surfaceType] ?? 1024;
+    const dispBlur = SURFACE_DISP_BLUR[surfaceType] ?? 1.5;
 
     const dpr = window.devicePixelRatio || 1;
     const physW = Math.round(drawerSize.w * dpr);
@@ -388,7 +411,8 @@ export const LiquidGlassDrawer: React.FC<LiquidGlassDrawerProps> = ({
       glassThickness,
       bezelWidth, // keep logical for lookup scaling
       surfaceFn,
-      DEFAULTS.refractiveIndex
+      DEFAULTS.refractiveIndex,
+      samples
     );
     const maxDisp = Math.max(...precomputed.map(Math.abs));
 
@@ -411,6 +435,12 @@ export const LiquidGlassDrawer: React.FC<LiquidGlassDrawerProps> = ({
     specularImageRef.current?.setAttribute("width", String(drawerSize.w));
     specularImageRef.current?.setAttribute("height", String(drawerSize.h));
     
+    // Update displacement map blur (smooths 8-bit quantization & steep gradients)
+    const drawerDispBlurEl = drawerRef.current
+      ?.closest("body")
+      ?.querySelector("#drawerDispBlur") as SVGFEGaussianBlurElement | null;
+    drawerDispBlurEl?.setAttribute("stdDeviation", String(dispBlur));
+
     const baseScale = maxDisp * refractionScale;
     const caFactor = chromaticAberration * 0.05; // Make the effect proportional and pronounced
     displacementMapRRef.current?.setAttribute("scale", String(baseScale * (1 + caFactor)));
@@ -438,6 +468,12 @@ export const LiquidGlassDrawer: React.FC<LiquidGlassDrawerProps> = ({
     specularImageBoxRef.current?.setAttribute("href", imageDataToDataURL(specDataBox));
     specularImageBoxRef.current?.setAttribute("width", String(boxSize));
     specularImageBoxRef.current?.setAttribute("height", String(boxSize));
+
+    // Update box displacement blur to match surface quality level
+    const boxDispBlurEl = drawerRef.current
+      ?.closest("body")
+      ?.querySelector("#boxDispBlur") as SVGFEGaussianBlurElement | null;
+    boxDispBlurEl?.setAttribute("stdDeviation", String(dispBlur));
     
     displacementMapRBoxRef.current?.setAttribute("scale", String(baseScale * (1 + caFactor)));
     displacementMapGBoxRef.current?.setAttribute("scale", String(baseScale));
@@ -534,7 +570,7 @@ export const LiquidGlassDrawer: React.FC<LiquidGlassDrawerProps> = ({
             <feImage ref={displacementImageRef} href="" x="0" y="0" width={drawerSize.w} height={drawerSize.h} result="raw_displacement_map" preserveAspectRatio="none" />
             
             {/* Blur the displacement map slightly to eliminate 8-bit color quantization stepping */}
-            <feGaussianBlur in="raw_displacement_map" stdDeviation="1.5" result="displacement_map" />
+            <feGaussianBlur id="drawerDispBlur" in="raw_displacement_map" stdDeviation="1.5" result="displacement_map" />
             
             <feColorMatrix in="blurred" type="matrix" values="1 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 1 0" result="red_layer" />
             <feColorMatrix in="blurred" type="matrix" values="0 0 0 0 0  0 1 0 0 0  0 0 0 0 0  0 0 0 1 0" result="green_layer" />
@@ -558,7 +594,7 @@ export const LiquidGlassDrawer: React.FC<LiquidGlassDrawerProps> = ({
             <feGaussianBlur ref={filterBlurBoxRef} in="SourceGraphic" stdDeviation={blur} result="blurred" />
             <feImage ref={displacementImageBoxRef} href="" x="0" y="0" width="200" height="200" result="raw_displacement_map_box" preserveAspectRatio="none" />
             
-            <feGaussianBlur in="raw_displacement_map_box" stdDeviation="1.5" result="displacement_map_box" />
+            <feGaussianBlur id="boxDispBlur" in="raw_displacement_map_box" stdDeviation="1.5" result="displacement_map_box" />
             
             <feColorMatrix in="blurred" type="matrix" values="1 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 1 0" result="red_layer_box" />
             <feColorMatrix in="blurred" type="matrix" values="0 0 0 0 0  0 1 0 0 0  0 0 0 0 0  0 0 0 1 0" result="green_layer_box" />
