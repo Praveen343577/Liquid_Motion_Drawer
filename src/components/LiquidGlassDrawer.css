@@ -45,3 +45,193 @@
     z-index: 3;
     pointer-events: none;
 }
+
+/* Controls Panel */
+.controls-panel {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 750px;
+    z-index: 2000;
+    background: rgba(255, 255, 255, 0.25);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-radius: 12px;
+    border: 1px solid rgba(255,255,255,0.3);
+    padding: 1rem 1.5rem;
+    color: #333;
+    font-weight: bold;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    column-gap: 2rem;
+    row-gap: 0.5rem;
+}
+
+@media (prefers-color-scheme: dark) {
+    .controls-panel {
+        background: rgba(30, 30, 40, 0.5);
+        border: 1px solid rgba(255,255,255,0.1);
+    }
+}
+
+.controls-header {
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 0.5rem;
+}
+
+.controls-header-text {
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    font-size: 11px;
+    font-weight: 800;
+    opacity: 0.9;
+}
+
+.controls-header-line {
+    flex: 1;
+    height: 1px;
+    background: rgba(17, 24, 39, 0.2);
+}
+
+.control-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.control-row:last-child {
+    margin-bottom: 0;
+}
+
+.control-label {
+    width: 100px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-size: 10px;
+    font-weight: 700;
+    opacity: 0.9;
+    flex-shrink: 0;
+}
+
+.control-value {
+    width: 30px;
+    text-align: right;
+    font-family: "SF Mono", Monaco, "Cascadia Code", monospace;
+    font-size: 11px;
+    font-weight: 700;
+    opacity: 0.9;
+    font-variant-numeric: tabular-nums;
+    flex-shrink: 0;
+}
+
+.control-slider {
+    flex: 1;
+    -webkit-appearance: none;
+    appearance: none;
+    height: 3px;
+    background: rgba(17, 24, 39, 0.2);
+    border-radius: 2px;
+    outline: none;
+}
+
+.control-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    cursor: pointer;
+    transition: transform 0.15s ease;
+}
+
+.control-slider::-webkit-slider-thumb:hover {
+    transform: scale(1.2);
+}
+
+.control-slider::-moz-range-thumb {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    cursor: pointer;
+    border: none;
+}
+
+.surface-selector {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    flex: 1;
+}
+
+.surface-btn {
+    padding: 0.4rem 0.8rem;
+    border: 1px solid rgba(17, 24, 39, 0.2);
+    border-radius: 8px;
+    background: transparent;
+    color: #333;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.surface-btn:hover {
+    background: rgba(102, 126, 234, 0.2);
+    border-color: #667eea;
+}
+
+.surface-btn.active {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    border-color: transparent;
+}
+
+.mode-toggle {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.mode-toggle-switch {
+    position: relative;
+    width: 44px;
+    height: 24px;
+    background: rgba(17, 24, 39, 0.2);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.mode-toggle-switch.active {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+}
+
+.mode-toggle-switch::after {
+    content: "";
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 20px;
+    height: 20px;
+    background: white;
+    border-radius: 50%;
+    transition: transform 0.2s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.mode-toggle-switch.active::after {
+    transform: translateX(20px);
+}
+
+.mode-toggle-value {
+    font-size: 10px;
+    font-family: "SF Mono", Monaco, "Cascadia Code", monospace;
+    opacity: 0.6;
+    min-width: 100px;
+}
