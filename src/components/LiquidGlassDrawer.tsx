@@ -27,6 +27,18 @@ const SURFACE_DISP_BLUR: Record<string, number> = {
   convex_squircle_smooth: 3.0,
 };
 
+const SURFACE_TYPES = [
+  { key: "convex_squircle", label: "Convex Squircle" },
+  { key: "convex_squircle_smooth", label: "Convex Squircle (Smooth)" },
+  { key: "convex_circle_n", label: "Convex Circle (Smooth)" },
+  { key: "convex_circle_o", label: "Convex Circle (Original)" },
+  { key: "concave", label: "Concave" },
+  { key: "concave_pinch", label: "Concave Pinch" },
+  { key: "lip", label: "Lip" },
+  { key: "ripple", label: "Ripple" },
+  { key: "ridge", label: "Ridge" },
+];
+
 const SurfaceEquations: Record<string, (x: number) => number> = {
   convex_circle_o: (x) => Math.sqrt(1 - Math.pow(1 - x, 2)),
   convex_circle_n: (x) => 1 - Math.cos(x * Math.PI / 2),
@@ -231,14 +243,14 @@ export const LiquidGlassBox: React.FC<LiquidGlassBoxProps> = ({
   const [useBackdrop, setUseBackdrop] = useState(false);
 
   // Parameters
-  const [surfaceType] = useState(DEFAULTS.surfaceType);
-  const [bezelWidth] = useState(DEFAULTS.bezelWidth);
-  const [drawerRadius] = useState(DEFAULTS.drawerRadius);
-  const [glassThickness] = useState(DEFAULTS.glassThickness);
-  const [refractionScale] = useState(DEFAULTS.refractionScale);
-  const [specularOpacity] = useState(DEFAULTS.specularOpacity);
-  const [blur] = useState(DEFAULTS.blur);
-  const [chromaticAberration] = useState(DEFAULTS.chromaticAberration);
+  const [surfaceType, setSurfaceType] = useState(DEFAULTS.surfaceType);
+  const [bezelWidth, setBezelWidth] = useState(DEFAULTS.bezelWidth);
+  const [drawerRadius, setDrawerRadius] = useState(DEFAULTS.drawerRadius);
+  const [glassThickness, setGlassThickness] = useState(DEFAULTS.glassThickness);
+  const [refractionScale, setRefractionScale] = useState(DEFAULTS.refractionScale);
+  const [specularOpacity, setSpecularOpacity] = useState(DEFAULTS.specularOpacity);
+  const [blur, setBlur] = useState(DEFAULTS.blur);
+  const [chromaticAberration, setChromaticAberration] = useState(DEFAULTS.chromaticAberration);
 
   const [boxPos, setBoxPos] = useState({
     x: typeof window !== 'undefined' ? window.innerWidth / 2 - 100 : 0,
@@ -408,6 +420,76 @@ export const LiquidGlassBox: React.FC<LiquidGlassBoxProps> = ({
           <div ref={cloneInnerBoxRef} className="box-content-inner" />
         </div>
         <div className="box-inner-shadow" />
+      </div>
+
+      {/* Live Parameter Controls — always visible */}
+      <div className="controls-panel">
+        <div className="controls-header">
+          <span className="controls-header-text">Parameters</span>
+          <span className="controls-header-line" />
+        </div>
+
+        <div className="control-row">
+          <label className="control-label">Surface Type</label>
+          <div className="surface-selector">
+            {SURFACE_TYPES.map((s) => (
+              <button
+                key={s.key}
+                className={`surface-btn ${surfaceType === s.key ? "active" : ""}`}
+                onClick={() => setSurfaceType(s.key)}
+              >
+                {s.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="control-row">
+          <label className="control-label">Render Mode</label>
+          <div className="mode-toggle">
+            <div
+              className={`mode-toggle-switch ${useBackdrop ? "active" : ""}`}
+              onClick={() => setUseBackdrop(!useBackdrop)}
+            />
+            <span className="mode-toggle-value">{useBackdrop ? "Backdrop-filter" : "Clone (Fallback)"}</span>
+          </div>
+        </div>
+
+        <div className="control-row">
+          <label className="control-label">Bezel Width</label>
+          <span className="control-value">{Math.round(bezelWidth)}</span>
+          <input type="range" className="control-slider" min={5} max={100} value={bezelWidth} onChange={(e) => setBezelWidth(Number(e.target.value))} />
+        </div>
+        <div className="control-row">
+          <label className="control-label">Drawer Radius</label>
+          <span className="control-value">{Math.round(drawerRadius)}</span>
+          <input type="range" className="control-slider" min={0} max={500} value={drawerRadius} onChange={(e) => setDrawerRadius(Number(e.target.value))} />
+        </div>
+        <div className="control-row">
+          <label className="control-label">Glass Thickness</label>
+          <span className="control-value">{Math.round(glassThickness)}</span>
+          <input type="range" className="control-slider" min={10} max={200} value={glassThickness} onChange={(e) => setGlassThickness(Number(e.target.value))} />
+        </div>
+        <div className="control-row">
+          <label className="control-label">Refraction Scale</label>
+          <span className="control-value">{refractionScale.toFixed(2)}</span>
+          <input type="range" className="control-slider" min={0} max={1.5} step={0.01} value={refractionScale} onChange={(e) => setRefractionScale(Number(e.target.value))} />
+        </div>
+        <div className="control-row">
+          <label className="control-label">Specular Opacity</label>
+          <span className="control-value">{specularOpacity.toFixed(2)}</span>
+          <input type="range" className="control-slider" min={0} max={1} step={0.01} value={specularOpacity} onChange={(e) => setSpecularOpacity(Number(e.target.value))} />
+        </div>
+        <div className="control-row">
+          <label className="control-label">Blur</label>
+          <span className="control-value">{blur.toFixed(1)}</span>
+          <input type="range" className="control-slider" min={0} max={20} step={0.1} value={blur} onChange={(e) => setBlur(Number(e.target.value))} />
+        </div>
+        <div className="control-row">
+          <label className="control-label">Chromatic Aberration</label>
+          <span className="control-value">{chromaticAberration.toFixed(1)}</span>
+          <input type="range" className="control-slider" min={0} max={20} step={1} value={chromaticAberration} onChange={(e) => setChromaticAberration(Number(e.target.value))} />
+        </div>
       </div>
     </>
   );
