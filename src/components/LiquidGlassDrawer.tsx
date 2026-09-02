@@ -17,6 +17,8 @@ const DEFAULTS = {
   specularOpacity: 1,
   blur: 0.5,
   chromaticAberration: 5,
+  boxWidth: 200,
+  boxHeight: 200,
 };
 
 // Per-surface overrides for 1D sample count and displacement map blur radius.
@@ -251,6 +253,8 @@ export const LiquidGlassBox: React.FC<LiquidGlassBoxProps> = ({
   const [specularOpacity, setSpecularOpacity] = useState(DEFAULTS.specularOpacity);
   const [blur, setBlur] = useState(DEFAULTS.blur);
   const [chromaticAberration, setChromaticAberration] = useState(DEFAULTS.chromaticAberration);
+  const [boxWidth, setBoxWidth] = useState(DEFAULTS.boxWidth);
+  const [boxHeight, setBoxHeight] = useState(DEFAULTS.boxHeight);
 
   const [boxPos, setBoxPos] = useState({
     x: typeof window !== 'undefined' ? window.innerWidth / 2 - 100 : 0,
@@ -333,23 +337,23 @@ export const LiquidGlassBox: React.FC<LiquidGlassBoxProps> = ({
     );
     const maxDisp = Math.max(...precomputed.map(Math.abs));
 
-    const boxSize = 200;
-    const boxRadius = Math.min(drawerRadius, 100);
-    const physBoxSize = Math.round(boxSize * dpr);
+    const boxRadius = Math.min(drawerRadius, Math.min(boxWidth, boxHeight) / 2);
+    const physBoxW = Math.round(boxWidth * dpr);
+    const physBoxH = Math.round(boxHeight * dpr);
     const physBoxRadius = boxRadius * dpr;
 
     const dispDataBox = calculateDisplacementMap2D(
-      physBoxSize, physBoxSize, physBoxSize, physBoxSize,
+      physBoxW, physBoxH, physBoxW, physBoxH,
       physBoxRadius, physBezelWidth, maxDisp || 1, precomputed
     );
-    const specDataBox = calculateSpecularHighlight(physBoxSize, physBoxSize, physBoxRadius, dpr);
+    const specDataBox = calculateSpecularHighlight(physBoxW, physBoxH, physBoxRadius, dpr);
 
     displacementImageBoxRef.current?.setAttribute("href", imageDataToDataURL(dispDataBox));
-    displacementImageBoxRef.current?.setAttribute("width", String(boxSize));
-    displacementImageBoxRef.current?.setAttribute("height", String(boxSize));
+    displacementImageBoxRef.current?.setAttribute("width", String(boxWidth));
+    displacementImageBoxRef.current?.setAttribute("height", String(boxHeight));
     specularImageBoxRef.current?.setAttribute("href", imageDataToDataURL(specDataBox));
-    specularImageBoxRef.current?.setAttribute("width", String(boxSize));
-    specularImageBoxRef.current?.setAttribute("height", String(boxSize));
+    specularImageBoxRef.current?.setAttribute("width", String(boxWidth));
+    specularImageBoxRef.current?.setAttribute("height", String(boxHeight));
 
     // Update box displacement blur
     const boxDispBlurEl = document
@@ -364,16 +368,16 @@ export const LiquidGlassBox: React.FC<LiquidGlassBoxProps> = ({
 
     specularAlphaBoxRef.current?.setAttribute("slope", String(specularOpacity));
     filterBlurBoxRef.current?.setAttribute("stdDeviation", String(blur));
-  }, [surfaceType, bezelWidth, drawerRadius, glassThickness, refractionScale, specularOpacity, blur, chromaticAberration]);
+  }, [surfaceType, bezelWidth, drawerRadius, glassThickness, refractionScale, specularOpacity, blur, chromaticAberration, boxWidth, boxHeight]);
 
   return (
     <>
       {/* Hidden SVG filter definitions */}
       <svg aria-hidden="true" style={{ position: "absolute", width: 0, height: 0 }}>
         <defs>
-          <filter id="liquidGlassFilterBox" x="0" y="0" width="200" height="200" filterUnits="userSpaceOnUse" primitiveUnits="userSpaceOnUse" colorInterpolationFilters="sRGB">
+          <filter id="liquidGlassFilterBox" x="0" y="0" width={boxWidth} height={boxHeight} filterUnits="userSpaceOnUse" primitiveUnits="userSpaceOnUse" colorInterpolationFilters="sRGB">
             <feGaussianBlur ref={filterBlurBoxRef} in="SourceGraphic" stdDeviation={blur} result="blurred" />
-            <feImage ref={displacementImageBoxRef} href="" x="0" y="0" width="200" height="200" result="raw_displacement_map_box" preserveAspectRatio="none" />
+            <feImage ref={displacementImageBoxRef} href="" x="0" y="0" width={boxWidth} height={boxHeight} result="raw_displacement_map_box" preserveAspectRatio="none" />
 
             <feGaussianBlur id="boxDispBlur" in="raw_displacement_map_box" stdDeviation="1.5" result="displacement_map_box" />
 
@@ -389,7 +393,7 @@ export const LiquidGlassBox: React.FC<LiquidGlassBoxProps> = ({
             <feBlend in="rg_box" in2="blue_displaced_box" mode="lighten" result="displaced_aberrated_box" />
 
             <feColorMatrix in="displaced_aberrated_box" type="saturate" values="1.3" result="displaced_saturated_box" />
-            <feImage ref={specularImageBoxRef} href="" x="0" y="0" width="200" height="200" result="specular_layer_box" preserveAspectRatio="none" />
+            <feImage ref={specularImageBoxRef} href="" x="0" y="0" width={boxWidth} height={boxHeight} result="specular_layer_box" preserveAspectRatio="none" />
             <feComponentTransfer in="specular_layer_box" result="specular_faded_box">
               <feFuncA ref={specularAlphaBoxRef} type="linear" slope={specularOpacity} />
             </feComponentTransfer>
@@ -398,16 +402,16 @@ export const LiquidGlassBox: React.FC<LiquidGlassBoxProps> = ({
         </defs>
       </svg>
 
-      {/* Draggable 200x200 liquid glass box */}
+      {/* Draggable liquid glass box */}
       <div
         className={`draggable-liquid-box ${useBackdrop ? "use-backdrop-filter" : ""} ${className}`}
         style={{
           position: "fixed",
           left: boxPos.x,
           top: boxPos.y,
-          width: 200,
-          height: 200,
-          borderRadius: Math.min(drawerRadius, 100),
+          width: boxWidth,
+          height: boxHeight,
+          borderRadius: Math.min(drawerRadius, Math.min(boxWidth, boxHeight) / 2),
           zIndex: 2500,
           cursor: isDraggingRef.current ? "grabbing" : "grab",
         }}
@@ -458,7 +462,7 @@ export const LiquidGlassBox: React.FC<LiquidGlassBoxProps> = ({
         <div className="control-row">
           <label className="control-label">Bezel Width</label>
           <span className="control-value">{Math.round(bezelWidth)}</span>
-          <input type="range" className="control-slider" min={5} max={100} value={bezelWidth} onChange={(e) => setBezelWidth(Number(e.target.value))} />
+          <input type="range" className="control-slider" min={5} max={500} value={bezelWidth} onChange={(e) => setBezelWidth(Number(e.target.value))} />
         </div>
         <div className="control-row">
           <label className="control-label">Drawer Radius</label>
@@ -468,7 +472,7 @@ export const LiquidGlassBox: React.FC<LiquidGlassBoxProps> = ({
         <div className="control-row">
           <label className="control-label">Glass Thickness</label>
           <span className="control-value">{Math.round(glassThickness)}</span>
-          <input type="range" className="control-slider" min={10} max={200} value={glassThickness} onChange={(e) => setGlassThickness(Number(e.target.value))} />
+          <input type="range" className="control-slider" min={10} max={500} value={glassThickness} onChange={(e) => setGlassThickness(Number(e.target.value))} />
         </div>
         <div className="control-row">
           <label className="control-label">Refraction Scale</label>
@@ -489,6 +493,16 @@ export const LiquidGlassBox: React.FC<LiquidGlassBoxProps> = ({
           <label className="control-label">Chromatic Aberration</label>
           <span className="control-value">{chromaticAberration.toFixed(1)}</span>
           <input type="range" className="control-slider" min={0} max={20} step={1} value={chromaticAberration} onChange={(e) => setChromaticAberration(Number(e.target.value))} />
+        </div>
+        <div className="control-row">
+          <label className="control-label">Width</label>
+          <span className="control-value">{boxWidth}</span>
+          <input type="range" className="control-slider" min={50} max={800} step={1} value={boxWidth} onChange={(e) => setBoxWidth(Number(e.target.value))} />
+        </div>
+        <div className="control-row">
+          <label className="control-label">Height</label>
+          <span className="control-value">{boxHeight}</span>
+          <input type="range" className="control-slider" min={50} max={800} step={1} value={boxHeight} onChange={(e) => setBoxHeight(Number(e.target.value))} />
         </div>
       </div>
     </>
