@@ -112,33 +112,6 @@
     0 8px 32px rgba(0, 0, 0, 0.4);
 }
 
-/* thin accent gradient bar at the top of each card */
-.sidebar-card::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 2px;
-  border-radius: 14px 14px 0 0;
-  background: linear-gradient(90deg, #667eea 0%, #a855f7 50%, #ec4899 100%);
-  opacity: 0.6;
-  transition: opacity 0.25s ease;
-}
-
-.sidebar-card:hover::before {
-  opacity: 0.9;
-}
-
-/* Card 2 gets a slightly cooler accent */
-.sidebar-card:nth-child(2)::before {
-  background: linear-gradient(90deg, #06b6d4 0%, #667eea 60%, #a855f7 100%);
-}
-
-/* Card 3 gets a warm accent */
-.sidebar-card:nth-child(3)::before {
-  background: linear-gradient(90deg, #f59e0b 0%, #ec4899 60%, #a855f7 100%);
-}
 
 
 /* ============================================================
@@ -149,16 +122,6 @@
   align-items: center;
   gap: 8px;
   margin-bottom: 2px;
-}
-
-.card-icon {
-  font-size: 13px;
-  line-height: 1;
-  background: linear-gradient(135deg, #a78bfa, #ec4899);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  flex-shrink: 0;
 }
 
 .card-title {
@@ -347,7 +310,7 @@
 }
 
 .mode-toggle-switch.active {
-  background: linear-gradient(135deg, #667eea, #a855f7);
+  background: linear-gradient(135deg, #667eea, #014415);
   border-color: transparent;
   box-shadow: 0 0 10px rgba(167, 139, 250, 0.4);
 }
