@@ -432,7 +432,6 @@ export const LiquidGlassBox: React.FC<LiquidGlassBoxProps> = ({
         {/* Card 1 — Surface & Render */}
         <div className="sidebar-card">
           <div className="card-header">
-            <span className="card-icon">◈</span>
             <span className="card-title">Surface &amp; Render</span>
           </div>
 
@@ -466,7 +465,6 @@ export const LiquidGlassBox: React.FC<LiquidGlassBoxProps> = ({
         {/* Card 2 — Liquid Properties */}
         <div className="sidebar-card">
           <div className="card-header">
-            <span className="card-icon">◉</span>
             <span className="card-title">Liquid Properties</span>
           </div>
 
@@ -522,7 +520,6 @@ export const LiquidGlassBox: React.FC<LiquidGlassBoxProps> = ({
         {/* Card 3 — Dimensions */}
         <div className="sidebar-card">
           <div className="card-header">
-            <span className="card-icon">⬜</span>
             <span className="card-title">Dimensions</span>
           </div>
 
