@@ -426,85 +426,132 @@ export const LiquidGlassBox: React.FC<LiquidGlassBoxProps> = ({
         <div className="box-inner-shadow" />
       </div>
 
-      {/* Live Parameter Controls — always visible */}
-      <div className="controls-panel">
-        <div className="controls-header">
-          <span className="controls-header-text">Parameters</span>
-          <span className="controls-header-line" />
-        </div>
+      {/* Sidebar — always present on left */}
+      <aside className="sidebar">
 
-        <div className="control-row">
-          <label className="control-label">Surface Type</label>
-          <div className="surface-selector">
-            {SURFACE_TYPES.map((s) => (
-              <button
-                key={s.key}
-                className={`surface-btn ${surfaceType === s.key ? "active" : ""}`}
-                onClick={() => setSurfaceType(s.key)}
-              >
-                {s.label}
-              </button>
-            ))}
+        {/* Card 1 — Surface & Render */}
+        <div className="sidebar-card">
+          <div className="card-header">
+            <span className="card-icon">◈</span>
+            <span className="card-title">Surface &amp; Render</span>
+          </div>
+
+          <div className="control-group">
+            <label className="control-label">Surface Type</label>
+            <div className="surface-selector">
+              {SURFACE_TYPES.map((s) => (
+                <button
+                  key={s.key}
+                  className={`surface-btn ${surfaceType === s.key ? "active" : ""}`}
+                  onClick={() => setSurfaceType(s.key)}
+                >
+                  {s.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="control-group">
+            <label className="control-label">Render Mode</label>
+            <div className="mode-toggle">
+              <div
+                className={`mode-toggle-switch ${useBackdrop ? "active" : ""}`}
+                onClick={() => setUseBackdrop(!useBackdrop)}
+              />
+              <span className="mode-toggle-value">{useBackdrop ? "Backdrop-filter" : "Clone (Fallback)"}</span>
+            </div>
           </div>
         </div>
 
-        <div className="control-row">
-          <label className="control-label">Render Mode</label>
-          <div className="mode-toggle">
-            <div
-              className={`mode-toggle-switch ${useBackdrop ? "active" : ""}`}
-              onClick={() => setUseBackdrop(!useBackdrop)}
-            />
-            <span className="mode-toggle-value">{useBackdrop ? "Backdrop-filter" : "Clone (Fallback)"}</span>
+        {/* Card 2 — Liquid Properties */}
+        <div className="sidebar-card">
+          <div className="card-header">
+            <span className="card-icon">◉</span>
+            <span className="card-title">Liquid Properties</span>
+          </div>
+
+          <div className="control-group">
+            <div className="control-row">
+              <label className="control-label">Bezel Width</label>
+              <span className="control-value">{Math.round(bezelWidth)}</span>
+            </div>
+            <input type="range" className="control-slider" min={5} max={500} value={bezelWidth} onChange={(e) => setBezelWidth(Number(e.target.value))} />
+          </div>
+
+          <div className="control-group">
+            <div className="control-row">
+              <label className="control-label">Glass Thickness</label>
+              <span className="control-value">{Math.round(glassThickness)}</span>
+            </div>
+            <input type="range" className="control-slider" min={10} max={500} value={glassThickness} onChange={(e) => setGlassThickness(Number(e.target.value))} />
+          </div>
+
+          <div className="control-group">
+            <div className="control-row">
+              <label className="control-label">Refraction Scale</label>
+              <span className="control-value">{refractionScale.toFixed(2)}</span>
+            </div>
+            <input type="range" className="control-slider" min={0} max={1.5} step={0.01} value={refractionScale} onChange={(e) => setRefractionScale(Number(e.target.value))} />
+          </div>
+
+          <div className="control-group">
+            <div className="control-row">
+              <label className="control-label">Specular Opacity</label>
+              <span className="control-value">{specularOpacity.toFixed(2)}</span>
+            </div>
+            <input type="range" className="control-slider" min={0} max={1} step={0.01} value={specularOpacity} onChange={(e) => setSpecularOpacity(Number(e.target.value))} />
+          </div>
+
+          <div className="control-group">
+            <div className="control-row">
+              <label className="control-label">Blur</label>
+              <span className="control-value">{blur.toFixed(1)}</span>
+            </div>
+            <input type="range" className="control-slider" min={0} max={20} step={0.1} value={blur} onChange={(e) => setBlur(Number(e.target.value))} />
+          </div>
+
+          <div className="control-group">
+            <div className="control-row">
+              <label className="control-label">Chromatic Aberr.</label>
+              <span className="control-value">{chromaticAberration.toFixed(1)}</span>
+            </div>
+            <input type="range" className="control-slider" min={0} max={20} step={1} value={chromaticAberration} onChange={(e) => setChromaticAberration(Number(e.target.value))} />
           </div>
         </div>
 
-        <div className="control-row">
-          <label className="control-label">Bezel Width</label>
-          <span className="control-value">{Math.round(bezelWidth)}</span>
-          <input type="range" className="control-slider" min={5} max={500} value={bezelWidth} onChange={(e) => setBezelWidth(Number(e.target.value))} />
+        {/* Card 3 — Dimensions */}
+        <div className="sidebar-card">
+          <div className="card-header">
+            <span className="card-icon">⬜</span>
+            <span className="card-title">Dimensions</span>
+          </div>
+
+          <div className="control-group">
+            <div className="control-row">
+              <label className="control-label">Width</label>
+              <span className="control-value">{boxWidth}</span>
+            </div>
+            <input type="range" className="control-slider" min={50} max={800} step={1} value={boxWidth} onChange={(e) => setBoxWidth(Number(e.target.value))} />
+          </div>
+
+          <div className="control-group">
+            <div className="control-row">
+              <label className="control-label">Height</label>
+              <span className="control-value">{boxHeight}</span>
+            </div>
+            <input type="range" className="control-slider" min={50} max={800} step={1} value={boxHeight} onChange={(e) => setBoxHeight(Number(e.target.value))} />
+          </div>
+
+          <div className="control-group">
+            <div className="control-row">
+              <label className="control-label">Corner Radius</label>
+              <span className="control-value">{Math.round(drawerRadius)}</span>
+            </div>
+            <input type="range" className="control-slider" min={0} max={500} value={drawerRadius} onChange={(e) => setDrawerRadius(Number(e.target.value))} />
+          </div>
         </div>
-        <div className="control-row">
-          <label className="control-label">Drawer Radius</label>
-          <span className="control-value">{Math.round(drawerRadius)}</span>
-          <input type="range" className="control-slider" min={0} max={500} value={drawerRadius} onChange={(e) => setDrawerRadius(Number(e.target.value))} />
-        </div>
-        <div className="control-row">
-          <label className="control-label">Glass Thickness</label>
-          <span className="control-value">{Math.round(glassThickness)}</span>
-          <input type="range" className="control-slider" min={10} max={500} value={glassThickness} onChange={(e) => setGlassThickness(Number(e.target.value))} />
-        </div>
-        <div className="control-row">
-          <label className="control-label">Refraction Scale</label>
-          <span className="control-value">{refractionScale.toFixed(2)}</span>
-          <input type="range" className="control-slider" min={0} max={1.5} step={0.01} value={refractionScale} onChange={(e) => setRefractionScale(Number(e.target.value))} />
-        </div>
-        <div className="control-row">
-          <label className="control-label">Specular Opacity</label>
-          <span className="control-value">{specularOpacity.toFixed(2)}</span>
-          <input type="range" className="control-slider" min={0} max={1} step={0.01} value={specularOpacity} onChange={(e) => setSpecularOpacity(Number(e.target.value))} />
-        </div>
-        <div className="control-row">
-          <label className="control-label">Blur</label>
-          <span className="control-value">{blur.toFixed(1)}</span>
-          <input type="range" className="control-slider" min={0} max={20} step={0.1} value={blur} onChange={(e) => setBlur(Number(e.target.value))} />
-        </div>
-        <div className="control-row">
-          <label className="control-label">Chromatic Aberration</label>
-          <span className="control-value">{chromaticAberration.toFixed(1)}</span>
-          <input type="range" className="control-slider" min={0} max={20} step={1} value={chromaticAberration} onChange={(e) => setChromaticAberration(Number(e.target.value))} />
-        </div>
-        <div className="control-row">
-          <label className="control-label">Width</label>
-          <span className="control-value">{boxWidth}</span>
-          <input type="range" className="control-slider" min={50} max={800} step={1} value={boxWidth} onChange={(e) => setBoxWidth(Number(e.target.value))} />
-        </div>
-        <div className="control-row">
-          <label className="control-label">Height</label>
-          <span className="control-value">{boxHeight}</span>
-          <input type="range" className="control-slider" min={50} max={800} step={1} value={boxHeight} onChange={(e) => setBoxHeight(Number(e.target.value))} />
-        </div>
-      </div>
+
+      </aside>
     </>
   );
 };
