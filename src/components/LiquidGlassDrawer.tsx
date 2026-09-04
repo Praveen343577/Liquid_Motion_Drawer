@@ -4,6 +4,7 @@ import "./LiquidGlassDrawer.css";
 // --- Types ---
 export interface LiquidGlassBoxProps {
   className?: string;
+  backgroundSrc?: string;
 }
 
 // --- Constants ---
@@ -241,6 +242,7 @@ function detectBackdropFilterSupport() {
 // --- Component ---
 export const LiquidGlassBox: React.FC<LiquidGlassBoxProps> = ({
   className = "",
+  backgroundSrc,
 }) => {
   const [useBackdrop, setUseBackdrop] = useState(false);
 
@@ -421,7 +423,24 @@ export const LiquidGlassBox: React.FC<LiquidGlassBoxProps> = ({
         onPointerCancel={handlePointerUp}
       >
         <div className="box-content-clone">
-          <div ref={cloneInnerBoxRef} className="box-content-inner" />
+          <div ref={cloneInnerBoxRef} className="box-content-inner">
+            {backgroundSrc && (
+              <img
+                src={backgroundSrc}
+                alt=""
+                aria-hidden="true"
+                draggable={false}
+                style={{
+                  position: "absolute",
+                  inset: 0,
+                  width: "100%",
+                  height: "100%",
+                  objectFit: "cover",
+                  pointerEvents: "none",
+                }}
+              />
+            )}
+          </div>
         </div>
         <div className="box-inner-shadow" />
       </div>
