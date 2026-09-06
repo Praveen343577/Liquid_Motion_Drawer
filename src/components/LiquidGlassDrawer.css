@@ -194,58 +194,57 @@
   width: 100%;
   -webkit-appearance: none;
   appearance: none;
-  height: 3px;
-  border-radius: 3px;
-  background: rgba(255, 255, 255, 0.1);
+  height: 2px;
+  border-radius: 1px;
+  background: rgba(255, 255, 255, 0.25);
   outline: none;
   cursor: pointer;
-  /* filled track simulated via background gradient updated on value change
-     — browsers handle the track fill automatically via the styles below */
 }
 
 .control-slider::-webkit-slider-runnable-track {
-  height: 3px;
-  border-radius: 3px;
-  background: rgba(255, 255, 255, 0.1);
+  height: 2px;
+  border-radius: 1px;
+  background: transparent;
 }
 
 .control-slider::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
-  width: 14px;
+  width: 2px;
   height: 14px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #a78bfa, #ec4899);
+  border-radius: 1px;
+  background: #ffffff;
   cursor: pointer;
-  margin-top: -5.5px;
-  box-shadow: 0 0 6px rgba(167, 139, 250, 0.5);
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
-  border: 2px solid rgba(255, 255, 255, 0.25);
+  margin-top: -6px;
+  box-shadow: none;
+  transition: height 0.15s ease, opacity 0.15s ease;
+  border: none;
 }
 
 .control-slider::-webkit-slider-thumb:hover {
-  transform: scale(1.25);
-  box-shadow: 0 0 10px rgba(167, 139, 250, 0.75);
+  height: 18px;
+  margin-top: -8px;
+  opacity: 0.85;
 }
 
 .control-slider::-moz-range-track {
-  height: 3px;
-  border-radius: 3px;
-  background: rgba(255, 255, 255, 0.1);
+  height: 2px;
+  border-radius: 1px;
+  background: rgba(255, 255, 255, 0.25);
 }
 
 .control-slider::-moz-range-thumb {
-  width: 14px;
+  width: 2px;
   height: 14px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #a78bfa, #ec4899);
+  border-radius: 1px;
+  background: #ffffff;
   cursor: pointer;
-  border: 2px solid rgba(255, 255, 255, 0.25);
-  box-shadow: 0 0 6px rgba(167, 139, 250, 0.5);
+  border: none;
+  box-shadow: none;
 }
 
 .control-slider::-moz-range-thumb:hover {
-  transform: scale(1.25);
+  height: 18px;
 }
 
 
