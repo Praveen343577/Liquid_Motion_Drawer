@@ -59,7 +59,7 @@
   top: 0;
   left: 0;
   height: 100vh;
-  width: 264px;
+  width: 400px;
   z-index: 3000;
   display: flex;
   flex-direction: column;
@@ -194,57 +194,56 @@
   width: 100%;
   -webkit-appearance: none;
   appearance: none;
-  height: 2px;
-  border-radius: 1px;
-  background: rgba(255, 255, 255, 0.25);
+  height: 4px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.3);
   outline: none;
   cursor: pointer;
 }
 
 .control-slider::-webkit-slider-runnable-track {
-  height: 2px;
-  border-radius: 1px;
+  height: 4px;
+  border-radius: 999px;
   background: transparent;
 }
 
 .control-slider::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
-  width: 2px;
-  height: 14px;
-  border-radius: 1px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
   background: #ffffff;
   cursor: pointer;
   margin-top: -6px;
-  box-shadow: none;
-  transition: height 0.15s ease, opacity 0.15s ease;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.35);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
   border: none;
 }
 
 .control-slider::-webkit-slider-thumb:hover {
-  height: 18px;
-  margin-top: -8px;
-  opacity: 0.85;
+  transform: scale(1.2);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
 }
 
 .control-slider::-moz-range-track {
-  height: 2px;
-  border-radius: 1px;
-  background: rgba(255, 255, 255, 0.25);
+  height: 4px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.3);
 }
 
 .control-slider::-moz-range-thumb {
-  width: 2px;
-  height: 14px;
-  border-radius: 1px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
   background: #ffffff;
   cursor: pointer;
   border: none;
-  box-shadow: none;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.35);
 }
 
 .control-slider::-moz-range-thumb:hover {
-  height: 18px;
+  transform: scale(1.2);
 }
 
 
