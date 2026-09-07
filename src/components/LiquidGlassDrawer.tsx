@@ -445,8 +445,32 @@ export const LiquidGlassBox: React.FC<LiquidGlassBoxProps> = ({
         <div className="box-inner-shadow" />
       </div>
 
-      {/* Sidebar — always present on left */}
+      {/* Sidebar — BG Studio "Customize" style panel */}
       <aside className="sidebar">
+
+        {/* Panel Header */}
+        <div className="sidebar-panel-header">
+          <span className="sidebar-panel-title">Customize</span>
+          <div className="sidebar-panel-actions">
+            <button className="sidebar-panel-btn" onClick={() => {
+              setSurfaceType(DEFAULTS.surfaceType);
+              setBezelWidth(DEFAULTS.bezelWidth);
+              setDrawerRadius(DEFAULTS.drawerRadius);
+              setGlassThickness(DEFAULTS.glassThickness);
+              setRefractionScale(DEFAULTS.refractionScale);
+              setSpecularOpacity(DEFAULTS.specularOpacity);
+              setBlur(DEFAULTS.blur);
+              setChromaticAberration(DEFAULTS.chromaticAberration);
+              setBoxWidth(DEFAULTS.boxWidth);
+              setBoxHeight(DEFAULTS.boxHeight);
+            }}>
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M2 8a6 6 0 1 0 1.5-3.9L2 2v4h4l-1.5-1.5" />
+              </svg>
+              Reset
+            </button>
+          </div>
+        </div>
 
         {/* Card 1 — Surface & Render */}
         <div className="sidebar-card">
@@ -455,7 +479,9 @@ export const LiquidGlassBox: React.FC<LiquidGlassBoxProps> = ({
           </div>
 
           <div className="control-group">
-            <label className="control-label">Surface Type</label>
+            <div className="control-row">
+              <label className="control-label">Surface Type</label>
+            </div>
             <div className="surface-selector">
               {SURFACE_TYPES.map((s) => (
                 <button
@@ -470,13 +496,15 @@ export const LiquidGlassBox: React.FC<LiquidGlassBoxProps> = ({
           </div>
 
           <div className="control-group">
-            <label className="control-label">Render Mode</label>
             <div className="mode-toggle">
-              <div
-                className={`mode-toggle-switch ${useBackdrop ? "active" : ""}`}
-                onClick={() => setUseBackdrop(!useBackdrop)}
-              />
-              <span className="mode-toggle-value">{useBackdrop ? "Backdrop-filter" : "Clone (Fallback)"}</span>
+              <span className="mode-toggle-label">Render Mode</span>
+              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                <span className="mode-toggle-value">{useBackdrop ? "Backdrop" : "Clone"}</span>
+                <div
+                  className={`mode-toggle-switch ${useBackdrop ? "active" : ""}`}
+                  onClick={() => setUseBackdrop(!useBackdrop)}
+                />
+              </div>
             </div>
           </div>
         </div>
@@ -492,7 +520,9 @@ export const LiquidGlassBox: React.FC<LiquidGlassBoxProps> = ({
               <label className="control-label">Bezel Width</label>
               <span className="control-value">{Math.round(bezelWidth)}</span>
             </div>
-            <input type="range" className="control-slider" min={5} max={100} step={1} value={bezelWidth} onChange={(e) => setBezelWidth(Number(e.target.value))} />
+            <div className="control-slider-row">
+              <input type="range" className="control-slider" min={5} max={100} step={1} value={bezelWidth} onChange={(e) => setBezelWidth(Number(e.target.value))} />
+            </div>
           </div>
 
           <div className="control-group">
@@ -500,7 +530,9 @@ export const LiquidGlassBox: React.FC<LiquidGlassBoxProps> = ({
               <label className="control-label">Glass Thickness</label>
               <span className="control-value">{Math.round(glassThickness)}</span>
             </div>
-            <input type="range" className="control-slider" min={10} max={100} step={1} value={glassThickness} onChange={(e) => setGlassThickness(Number(e.target.value))} />
+            <div className="control-slider-row">
+              <input type="range" className="control-slider" min={10} max={500} step={1} value={glassThickness} onChange={(e) => setGlassThickness(Number(e.target.value))} />
+            </div>
           </div>
 
           <div className="control-group">
@@ -508,7 +540,9 @@ export const LiquidGlassBox: React.FC<LiquidGlassBoxProps> = ({
               <label className="control-label">Refraction Scale</label>
               <span className="control-value">{refractionScale.toFixed(2)}</span>
             </div>
-            <input type="range" className="control-slider" min={0} max={2} step={0.01} value={refractionScale} onChange={(e) => setRefractionScale(Number(e.target.value))} />
+            <div className="control-slider-row">
+              <input type="range" className="control-slider" min={0} max={2} step={0.01} value={refractionScale} onChange={(e) => setRefractionScale(Number(e.target.value))} />
+            </div>
           </div>
 
           <div className="control-group">
@@ -516,7 +550,9 @@ export const LiquidGlassBox: React.FC<LiquidGlassBoxProps> = ({
               <label className="control-label">Specular Opacity</label>
               <span className="control-value">{specularOpacity.toFixed(2)}</span>
             </div>
-            <input type="range" className="control-slider" min={0} max={1} step={0.01} value={specularOpacity} onChange={(e) => setSpecularOpacity(Number(e.target.value))} />
+            <div className="control-slider-row">
+              <input type="range" className="control-slider" min={0} max={1} step={0.01} value={specularOpacity} onChange={(e) => setSpecularOpacity(Number(e.target.value))} />
+            </div>
           </div>
 
           <div className="control-group">
@@ -524,7 +560,9 @@ export const LiquidGlassBox: React.FC<LiquidGlassBoxProps> = ({
               <label className="control-label">Blur</label>
               <span className="control-value">{blur.toFixed(1)}</span>
             </div>
-            <input type="range" className="control-slider" min={0} max={20} step={0.1} value={blur} onChange={(e) => setBlur(Number(e.target.value))} />
+            <div className="control-slider-row">
+              <input type="range" className="control-slider" min={0} max={20} step={0.1} value={blur} onChange={(e) => setBlur(Number(e.target.value))} />
+            </div>
           </div>
 
           <div className="control-group">
@@ -532,7 +570,9 @@ export const LiquidGlassBox: React.FC<LiquidGlassBoxProps> = ({
               <label className="control-label">Chromatic Aberr.</label>
               <span className="control-value">{chromaticAberration.toFixed(1)}</span>
             </div>
-            <input type="range" className="control-slider" min={0} max={20} step={0.1} value={chromaticAberration} onChange={(e) => setChromaticAberration(Number(e.target.value))} />
+            <div className="control-slider-row">
+              <input type="range" className="control-slider" min={0} max={20} step={0.1} value={chromaticAberration} onChange={(e) => setChromaticAberration(Number(e.target.value))} />
+            </div>
           </div>
         </div>
 
@@ -547,7 +587,9 @@ export const LiquidGlassBox: React.FC<LiquidGlassBoxProps> = ({
               <label className="control-label">Width</label>
               <span className="control-value">{boxWidth}</span>
             </div>
-            <input type="range" className="control-slider" min={50} max={800} step={1} value={boxWidth} onChange={(e) => setBoxWidth(Number(e.target.value))} />
+            <div className="control-slider-row">
+              <input type="range" className="control-slider" min={50} max={800} step={1} value={boxWidth} onChange={(e) => setBoxWidth(Number(e.target.value))} />
+            </div>
           </div>
 
           <div className="control-group">
@@ -555,7 +597,9 @@ export const LiquidGlassBox: React.FC<LiquidGlassBoxProps> = ({
               <label className="control-label">Height</label>
               <span className="control-value">{boxHeight}</span>
             </div>
-            <input type="range" className="control-slider" min={50} max={800} step={1} value={boxHeight} onChange={(e) => setBoxHeight(Number(e.target.value))} />
+            <div className="control-slider-row">
+              <input type="range" className="control-slider" min={50} max={800} step={1} value={boxHeight} onChange={(e) => setBoxHeight(Number(e.target.value))} />
+            </div>
           </div>
 
           <div className="control-group">
@@ -563,7 +607,9 @@ export const LiquidGlassBox: React.FC<LiquidGlassBoxProps> = ({
               <label className="control-label">Corner Radius</label>
               <span className="control-value">{Math.round(drawerRadius)}</span>
             </div>
-            <input type="range" className="control-slider" min={0} max={500} value={drawerRadius} onChange={(e) => setDrawerRadius(Number(e.target.value))} />
+            <div className="control-slider-row">
+              <input type="range" className="control-slider" min={0} max={500} value={drawerRadius} onChange={(e) => setDrawerRadius(Number(e.target.value))} />
+            </div>
           </div>
         </div>
 
