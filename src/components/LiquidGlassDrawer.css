@@ -58,7 +58,7 @@
   position: fixed;
   top: 0;
   left: 0;
-  width: 340px;
+  width: 400px;
   height: 100vh;
   z-index: 3000;
   display: flex;
@@ -181,12 +181,12 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 9px 18px 4px;
-  gap: 8px;
+  padding: 9.6px 19px 4.3px;
+  gap: 8.6px;
 }
 
 .control-label {
-  font-size: 12px;
+  font-size: 12.8px;
   font-weight: 500;
   color: rgba(255, 255, 255, 0.55);
   flex-shrink: 0;
@@ -196,11 +196,11 @@
 
 .control-value {
   font-family: "SF Mono", "Cascadia Code", Monaco, "Courier New", monospace;
-  font-size: 12px;
+  font-size: 12.8px;
   font-weight: 600;
   color: rgba(255, 255, 255, 0.85);
   font-variant-numeric: tabular-nums;
-  min-width: 38px;
+  min-width: 41px;
   text-align: right;
   flex-shrink: 0;
   letter-spacing: 0.01em;
@@ -208,7 +208,7 @@
 
 /* Slider row — full-width underneath the label row */
 .control-slider-row {
-  padding: 0 18px 9px;
+  padding: 0 19px 9.6px;
 }
 
 
@@ -219,7 +219,7 @@
   width: 100%;
   -webkit-appearance: none;
   appearance: none;
-  height: 3px;
+  height: 3.2px;
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.14);
   outline: none;
@@ -228,7 +228,7 @@
 }
 
 .control-slider::-webkit-slider-runnable-track {
-  height: 3px;
+  height: 3.2px;
   border-radius: 999px;
   background: transparent;
 }
@@ -236,12 +236,12 @@
 .control-slider::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
-  width: 13px;
-  height: 13px;
+  width: 14px;
+  height: 14px;
   border-radius: 50%;
   background: #e0e0e0;
   cursor: pointer;
-  margin-top: -5px;
+  margin-top: -5.4px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
   transition: transform 0.12s ease, background 0.12s ease;
   border: none;
@@ -253,7 +253,7 @@
 }
 
 .control-slider::-moz-range-track {
-  height: 3px;
+  height: 3.2px;
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.14);
 }
