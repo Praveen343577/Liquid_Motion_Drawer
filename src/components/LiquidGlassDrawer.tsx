@@ -492,7 +492,7 @@ export const LiquidGlassBox: React.FC<LiquidGlassBoxProps> = ({
               <label className="control-label">Bezel Width</label>
               <span className="control-value">{Math.round(bezelWidth)}</span>
             </div>
-            <input type="range" className="control-slider" min={5} max={500} value={bezelWidth} onChange={(e) => setBezelWidth(Number(e.target.value))} />
+            <input type="range" className="control-slider" min={5} max={100} step={1} value={bezelWidth} onChange={(e) => setBezelWidth(Number(e.target.value))} />
           </div>
 
           <div className="control-group">
@@ -500,7 +500,7 @@ export const LiquidGlassBox: React.FC<LiquidGlassBoxProps> = ({
               <label className="control-label">Glass Thickness</label>
               <span className="control-value">{Math.round(glassThickness)}</span>
             </div>
-            <input type="range" className="control-slider" min={10} max={500} value={glassThickness} onChange={(e) => setGlassThickness(Number(e.target.value))} />
+            <input type="range" className="control-slider" min={10} max={100} step={1} value={glassThickness} onChange={(e) => setGlassThickness(Number(e.target.value))} />
           </div>
 
           <div className="control-group">
@@ -508,7 +508,7 @@ export const LiquidGlassBox: React.FC<LiquidGlassBoxProps> = ({
               <label className="control-label">Refraction Scale</label>
               <span className="control-value">{refractionScale.toFixed(2)}</span>
             </div>
-            <input type="range" className="control-slider" min={0} max={1.5} step={0.01} value={refractionScale} onChange={(e) => setRefractionScale(Number(e.target.value))} />
+            <input type="range" className="control-slider" min={0} max={2} step={0.01} value={refractionScale} onChange={(e) => setRefractionScale(Number(e.target.value))} />
           </div>
 
           <div className="control-group">
@@ -532,7 +532,7 @@ export const LiquidGlassBox: React.FC<LiquidGlassBoxProps> = ({
               <label className="control-label">Chromatic Aberr.</label>
               <span className="control-value">{chromaticAberration.toFixed(1)}</span>
             </div>
-            <input type="range" className="control-slider" min={0} max={20} step={1} value={chromaticAberration} onChange={(e) => setChromaticAberration(Number(e.target.value))} />
+            <input type="range" className="control-slider" min={0} max={20} step={0.1} value={chromaticAberration} onChange={(e) => setChromaticAberration(Number(e.target.value))} />
           </div>
         </div>
 
