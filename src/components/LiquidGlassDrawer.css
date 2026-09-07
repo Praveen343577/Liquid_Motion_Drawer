@@ -52,33 +52,30 @@
 
 
 /* ============================================================
-   Sidebar — always present on the left
+   Sidebar — BG Studio "Customize" panel style
    ============================================================ */
 .sidebar {
   position: fixed;
-  top: 0;
-  left: 0;
-  height: 100vh;
-  width: 400px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 460px;
+  max-height: 90vh;
   z-index: 3000;
   display: flex;
   flex-direction: column;
-  gap: 11px;
-  padding: 18px 13px;
+  gap: 0;
   overflow-y: auto;
   overflow-x: hidden;
   scrollbar-width: none;
 
-  /* subtle frosted backdrop for the whole sidebar strip */
-  background: linear-gradient(
-    180deg,
-    rgba(10, 10, 18, 0.82) 0%,
-    rgba(14, 12, 26, 0.88) 100%
-  );
-  backdrop-filter: blur(20px) saturate(1.4);
-  -webkit-backdrop-filter: blur(20px) saturate(1.4);
-  border-right: 1px solid rgba(255, 255, 255, 0.06);
-  box-shadow: 4px 0 40px rgba(0, 0, 0, 0.4);
+  background: #1c1c1e;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  box-shadow:
+    0 24px 80px rgba(0, 0, 0, 0.7),
+    0 8px 24px rgba(0, 0, 0, 0.5),
+    0 1px 0 rgba(255, 255, 255, 0.06) inset;
 }
 
 .sidebar::-webkit-scrollbar {
@@ -86,123 +83,154 @@
 }
 
 /* ============================================================
-   Sidebar Cards — each card is a distinct floating panel
+   Panel Header — "Customize" title bar
    ============================================================ */
-.sidebar-card {
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.09);
-  border-radius: 16px;
-  padding: 16px 16px 18px;
+.sidebar-panel-header {
   display: flex;
-  flex-direction: column;
-  gap: 13px;
-  position: relative;
-  overflow: hidden;
-  transition: border-color 0.25s ease, box-shadow 0.25s ease;
-  /* subtle top edge glow to make each card feel lifted */
-  box-shadow:
-    0 1px 0 rgba(255, 255, 255, 0.08) inset,
-    0 6px 24px rgba(0, 0, 0, 0.3);
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 18px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+  flex-shrink: 0;
 }
 
-.sidebar-card:hover {
-  border-color: rgba(255, 255, 255, 0.15);
-  box-shadow:
-    0 1px 0 rgba(255, 255, 255, 0.1) inset,
-    0 8px 32px rgba(0, 0, 0, 0.4);
+.sidebar-panel-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.85);
+  letter-spacing: 0.01em;
 }
 
+.sidebar-panel-actions {
+  display: flex;
+  gap: 14px;
+}
+
+.sidebar-panel-btn {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.4);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  transition: color 0.15s ease;
+  background: none;
+  border: none;
+  padding: 0;
+  font-family: inherit;
+}
+
+.sidebar-panel-btn:hover {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.sidebar-panel-btn svg {
+  width: 13px;
+  height: 13px;
+}
 
 
 /* ============================================================
-   Card Header
+   Sidebar Cards — section groupings
+   ============================================================ */
+.sidebar-card {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.sidebar-card:last-child {
+  border-bottom: none;
+}
+
+
+/* ============================================================
+   Card Header — section title row
    ============================================================ */
 .card-header {
   display: flex;
   align-items: center;
-  gap: 8px;
-  margin-bottom: 2px;
+  padding: 8px 18px 6px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
 }
 
 .card-title {
-  font-size: 11px;
-  font-weight: 800;
-  letter-spacing: 0.12em;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.75);
-}
-
-/* Divider line after the title, fills remaining space */
-.card-header::after {
-  content: "";
-  flex: 1;
-  height: 1px;
-  background: linear-gradient(
-    90deg,
-    rgba(255, 255, 255, 0.12) 0%,
-    rgba(255, 255, 255, 0.01) 100%
-  );
-  margin-left: 4px;
+  color: rgba(255, 255, 255, 0.3);
 }
 
 
 /* ============================================================
-   Control Groups — one row per parameter inside a card
+   Control Groups — one row per parameter
    ============================================================ */
 .control-group {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.045);
 }
 
+.control-group:last-child {
+  border-bottom: none;
+}
+
+/* The label + value row */
 .control-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 7px;
+  padding: 9px 18px 4px;
+  gap: 8px;
 }
 
 .control-label {
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.07em;
-  text-transform: uppercase;
+  font-size: 12px;
+  font-weight: 500;
   color: rgba(255, 255, 255, 0.55);
   flex-shrink: 0;
   line-height: 1.3;
+  letter-spacing: 0.01em;
 }
 
 .control-value {
   font-family: "SF Mono", "Cascadia Code", Monaco, "Courier New", monospace;
   font-size: 12px;
-  font-weight: 700;
-  color: rgba(255, 255, 255, 0.9);
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.85);
   font-variant-numeric: tabular-nums;
-  min-width: 40px;
+  min-width: 38px;
   text-align: right;
   flex-shrink: 0;
-  background: rgba(255, 255, 255, 0.06);
-  border-radius: 5px;
-  padding: 2px 6px;
+  letter-spacing: 0.01em;
+}
+
+/* Slider row — full-width underneath the label row */
+.control-slider-row {
+  padding: 0 18px 9px;
 }
 
 
 /* ============================================================
-   Sliders
+   Sliders — thin, flat, BG Studio style
    ============================================================ */
 .control-slider {
   width: 100%;
   -webkit-appearance: none;
   appearance: none;
-  height: 5px;
+  height: 3px;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.14);
   outline: none;
   cursor: pointer;
+  display: block;
 }
 
 .control-slider::-webkit-slider-runnable-track {
-  height: 5px;
+  height: 3px;
   border-radius: 999px;
   background: transparent;
 }
@@ -210,40 +238,36 @@
 .control-slider::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
-  width: 18px;
-  height: 18px;
+  width: 13px;
+  height: 13px;
   border-radius: 50%;
-  background: #ffffff;
+  background: #e0e0e0;
   cursor: pointer;
-  margin-top: -7px;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.35);
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  margin-top: -5px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+  transition: transform 0.12s ease, background 0.12s ease;
   border: none;
 }
 
-.control-slider::-webkit-slider-thumb:hover {
-  transform: scale(1.2);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+.control-slider:hover::-webkit-slider-thumb {
+  transform: scale(1.25);
+  background: #ffffff;
 }
 
 .control-slider::-moz-range-track {
-  height: 5px;
+  height: 3px;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.14);
 }
 
 .control-slider::-moz-range-thumb {
-  width: 18px;
-  height: 18px;
+  width: 13px;
+  height: 13px;
   border-radius: 50%;
-  background: #ffffff;
+  background: #e0e0e0;
   cursor: pointer;
   border: none;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.35);
-}
-
-.control-slider::-moz-range-thumb:hover {
-  transform: scale(1.2);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
 }
 
 
@@ -252,36 +276,36 @@
    ============================================================ */
 .surface-selector {
   display: flex;
-  gap: 6px;
+  gap: 5px;
   flex-wrap: wrap;
-  margin-top: 2px;
+  padding: 4px 18px 12px;
 }
 
 .surface-btn {
-  padding: 5px 10px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 8px;
+  padding: 4px 9px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 6px;
   background: rgba(255, 255, 255, 0.04);
-  color: rgba(255, 255, 255, 0.5);
+  color: rgba(255, 255, 255, 0.45);
   font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.03em;
+  font-weight: 500;
+  letter-spacing: 0.02em;
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: all 0.13s ease;
   line-height: 1.4;
+  font-family: inherit;
 }
 
 .surface-btn:hover {
-  background: rgba(167, 139, 250, 0.15);
-  border-color: rgba(167, 139, 250, 0.4);
-  color: rgba(255, 255, 255, 0.85);
+  background: rgba(255, 255, 255, 0.09);
+  border-color: rgba(255, 255, 255, 0.18);
+  color: rgba(255, 255, 255, 0.8);
 }
 
 .surface-btn.active {
-  background: linear-gradient(135deg, rgba(102, 126, 234, 0.4), rgba(168, 85, 247, 0.4));
-  border-color: rgba(167, 139, 250, 0.6);
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.3);
   color: #fff;
-  box-shadow: 0 0 8px rgba(167, 139, 250, 0.3);
 }
 
 
@@ -291,26 +315,32 @@
 .mode-toggle {
   display: flex;
   align-items: center;
+  justify-content: space-between;
+  padding: 10px 18px;
   gap: 11px;
-  margin-top: 2px;
+}
+
+.mode-toggle-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.55);
 }
 
 .mode-toggle-switch {
   position: relative;
-  width: 44px;
-  height: 24px;
+  width: 38px;
+  height: 22px;
   background: rgba(255, 255, 255, 0.1);
-  border-radius: 12px;
+  border-radius: 11px;
   cursor: pointer;
   flex-shrink: 0;
-  transition: background 0.25s ease;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: background 0.22s ease;
+  border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .mode-toggle-switch.active {
-  background: linear-gradient(135deg, #667eea, #014415);
+  background: #4a8aff;
   border-color: transparent;
-  box-shadow: 0 0 10px rgba(167, 139, 250, 0.4);
 }
 
 .mode-toggle-switch::after {
@@ -318,21 +348,21 @@
   position: absolute;
   top: 2px;
   left: 2px;
-  width: 18px;
-  height: 18px;
+  width: 16px;
+  height: 16px;
   background: white;
   border-radius: 50%;
-  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+  transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.35);
 }
 
 .mode-toggle-switch.active::after {
-  transform: translateX(20px);
+  transform: translateX(16px);
 }
 
 .mode-toggle-value {
   font-size: 11px;
   font-family: "SF Mono", "Cascadia Code", Monaco, monospace;
-  color: rgba(255, 255, 255, 0.45);
+  color: rgba(255, 255, 255, 0.35);
   line-height: 1.3;
 }
