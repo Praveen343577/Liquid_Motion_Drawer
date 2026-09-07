@@ -531,7 +531,7 @@ export const LiquidGlassBox: React.FC<LiquidGlassBoxProps> = ({
               <span className="control-value">{Math.round(glassThickness)}</span>
             </div>
             <div className="control-slider-row">
-              <input type="range" className="control-slider" min={10} max={500} step={1} value={glassThickness} onChange={(e) => setGlassThickness(Number(e.target.value))} />
+              <input type="range" className="control-slider" min={10} max={100} step={1} value={glassThickness} onChange={(e) => setGlassThickness(Number(e.target.value))} />
             </div>
           </div>
 
