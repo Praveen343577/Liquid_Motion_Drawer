@@ -1,5 +1,5 @@
 import "./App.css";
-import bgImage from "./assets/background_12.jpg";
+import bgImage from "./assets/background_6.jpg";
 import { LiquidGlassBox } from "./components/LiquidGlassDrawer";
 
 export default function App() {
